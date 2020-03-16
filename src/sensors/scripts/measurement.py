@@ -1,18 +1,15 @@
 #! /usr/bin/env python
 
 import rospy
+from reader import MeasurementReader
 from std_msgs.msg import Float64
 
-def get_measurement():
-    # TODO(jana): add one measurement reading
-    return 1.0
-
-def publish_measurement(publisher):
-    measurement = get_measurement()
+def publish_measurement(publisher, mReader):
+    measurement = mReader.get_next_measurement()
     publisher.publish(measurement)
     rospy.loginfo('Measurement published: {}'.format(measurement))
 
-def start_measurements():
+def start_measurements(mReader):
     measurements_publisher = rospy.Publisher(
         'measurements_topic', Float64, queue_size = 10
     )
@@ -20,11 +17,12 @@ def start_measurements():
     r = rospy.Rate(10)
 
     while not rospy.is_shutdown():
-        publish_measurement(measurements_publisher)
+        publish_measurement(measurements_publisher, mReader)
         r.sleep()
 
 if __name__ == '__main__':
     try:
-        start_measurements()
+        mReader = MeasurementReader()
+        start_measurements(mReader)
     except rospy.ROSInterruptException:
         pass
