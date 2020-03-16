@@ -2,7 +2,7 @@
 
 import rospy
 from reader import MeasurementReader
-from std_msgs.msg import Float64
+from sensors.msg import DayTemperature
 
 def publish_measurement(publisher, mReader):
     measurement = mReader.get_next_measurement()
@@ -11,7 +11,7 @@ def publish_measurement(publisher, mReader):
 
 def start_measurements(mReader):
     measurements_publisher = rospy.Publisher(
-        'measurements_topic', Float64, queue_size = 10
+        'measurements_topic', DayTemperature, queue_size = 10
     )
     rospy.init_node('measurements_publisher', anonymous=True)
     r = rospy.Rate(10)
