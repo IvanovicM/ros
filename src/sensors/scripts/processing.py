@@ -1,15 +1,19 @@
 #! /usr/bin/env python
 
 import rospy
-from std_msgs.msg import String
+from std_msgs.msg import Float64
 
-def callback(dana):
-    rospy.loginfo(rospy.get_caller_id() + "I heard %s", dana.data)
+def measurement_processing(measurement):
+    # TODO(jana): one measurement processing
+    rospy.loginfo('Measurement heard: {}'.format(measurement.data))
 
-def listener():
-    rospy.init_node('hello_world_subscriber', anonymous=True)
-    rospy.Subscriber('measurement_pub', String, callback)
+def start_measurement_processing():
+    rospy.init_node('measurements_subscriber', anonymous=True)
+    rospy.Subscriber('measurements_topic', Float64, measurement_processing)
     rospy.spin()
 
 if __name__ == '__main__':
-    listener()
+    try:
+        start_measurement_processing()
+    except rospy.ROSInterruptException:
+        pass

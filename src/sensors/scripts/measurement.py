@@ -1,21 +1,30 @@
 #! /usr/bin/env python
 
 import rospy
-from std_msgs.msg import String
+from std_msgs.msg import Float64
 
-def talker():
-    pub = rospy.Publisher('measurement_pub', String, queue_size = 10)
-    rospy.init_node('measurement_pubLISHER', anonymous=True)
+def get_measurement():
+    # TODO(jana): add one measurement reading
+    return 1.0
+
+def publish_measurement(publisher):
+    measurement = get_measurement()
+    publisher.publish(measurement)
+    rospy.loginfo('Measurement published: {}'.format(measurement))
+
+def start_measurements():
+    measurements_publisher = rospy.Publisher(
+        'measurements_topic', Float64, queue_size = 10
+    )
+    rospy.init_node('measurements_publisher', anonymous=True)
     r = rospy.Rate(10)
 
     while not rospy.is_shutdown():
-        strr = 'measurement %s' % rospy.get_time()
-	rospy.loginfo(strr)
-        pub.publish(strr)
+        publish_measurement(measurements_publisher)
         r.sleep()
 
 if __name__ == '__main__':
     try:
-        talker()
+        start_measurements()
     except rospy.ROSInterruptException:
-        Cpass
+        pass
