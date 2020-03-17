@@ -15,7 +15,7 @@ def record_measurement(request):
 
         response = record_data_service(request)
         if response:
-            rospy.loginfo('Measurement successfully redorded.')
+            rospy.loginfo('Measurement recording succeeded.')
         else:
             rospy.logerr('Measurement recording failed.')
     except rospy.ServiceException, e:

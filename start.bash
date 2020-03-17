@@ -8,6 +8,10 @@ elif [ $1 == "p" ]; then
     file="processing.py"
 elif [ $1 == "v" ]; then
     file="view.py"
+elif [ $1 == "r" ]; then
+    file="record.py"
+elif [ $1 == "a" ]; then
+    file="diffaction.py"
 fi
 
 if [ "$file" != "" ]; then
