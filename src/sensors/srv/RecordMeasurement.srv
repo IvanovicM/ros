@@ -1,4 +1,4 @@
 ProcessedMeasurement    measurement     # Measurements are in C.
 ---
-bool                    success         # Indicates if the data was recorded
+bool                    success         # Indicated if the data was recorded
                                         # successfully.

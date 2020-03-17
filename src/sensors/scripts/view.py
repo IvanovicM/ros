@@ -2,6 +2,7 @@
 
 import rospy
 from sensors.msg import ProcessedMeasurement
+from sensors.msg import DiffActionGoal
 
 def measurement_view(measurement):
     rospy.loginfo('For day {} average temp. is {}C'.format(

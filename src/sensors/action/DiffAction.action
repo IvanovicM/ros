@@ -1,0 +1,6 @@
+uint32  inc_num     # Number of measurements with big diff deteceted.
+---
+bool    status      # Number of measurements with big diff recorded.
+---
+uint32  diff_num    # Number of recorded measurements.
+

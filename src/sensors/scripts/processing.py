@@ -12,10 +12,10 @@ def record_measurement(request):
         record_data_service = rospy.ServiceProxy(
             'record_data_service', RecordMeasurement
         )
-        response = record_data_service(request)
 
+        response = record_data_service(request)
         if response:
-            rospy.loginfo('Measurement recording succeeded.')
+            rospy.loginfo('Measurement successfully redorded.')
         else:
             rospy.logerr('Measurement recording failed.')
     except rospy.ServiceException, e:
@@ -23,10 +23,10 @@ def record_measurement(request):
 
 def measurement_processing(measurement, publisher):
     proc_measurement = process_measurement(measurement)
-    rospy.loginfo('New measurement processed.')
-    
     publisher.publish(proc_measurement)
     record_measurement(proc_measurement)
+
+    rospy.loginfo('New measurement processed.')
 
 def start_measurement_processing():
     rospy.init_node('processing', anonymous=False)
@@ -44,4 +44,5 @@ if __name__ == '__main__':
         start_measurement_processing()
     except rospy.ROSInterruptException:
         pass
+
 
