@@ -21,7 +21,7 @@ def process_measurement(measurement):
 
     return proc_measurement
 
-def prepare_to_write(measurement):
+def prepare_to_record(measurement):
     prep_measurement = ProcessedMeasurement()
 
     prep_measurement.day = measurement.day
