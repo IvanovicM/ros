@@ -3,13 +3,30 @@
 import rospy
 from sensors.msg import ProcessedMeasurement
 from sensors.msg import RawMeasurement
+from sensors.srv import RecordMeasurement, RecordMeasurementRequest, RecordMeasurementResponse
 from utils.analysis import process_measurement
+
+def record_measurement(request):
+    rospy.wait_for_service('record_data_service')
+    try:
+        record_data_service = rospy.ServiceProxy(
+            'record_data_service', RecordMeasurement
+        )
+        response = record_data_service(request)
+
+        if response:
+            rospy.loginfo('Measurement recording succeeded.')
+        else:
+            rospy.logerr('Measurement recording failed.')
+    except rospy.ServiceException, e:
+        print('Service failed, {}'.format(e))
 
 def measurement_processing(measurement, publisher):
     proc_measurement = process_measurement(measurement)
-    publisher.publish(proc_measurement)
-
     rospy.loginfo('New measurement processed.')
+    
+    publisher.publish(proc_measurement)
+    record_measurement(proc_measurement)
 
 def start_measurement_processing():
     rospy.init_node('processing', anonymous=False)
