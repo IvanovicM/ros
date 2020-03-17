@@ -21,11 +21,7 @@ class MeasurementReader():
         self.filename = filename if (filename is not None) else (
             'data/weather_data_nyc_centralpark_2016.csv'
         )
-<<<<<<< HEAD
         self.delimiter = ','
-=======
-        self.delimiter = delimiter
->>>>>>> a8d1efff8add13dbb57955f9b76420b1eadb783c
         self.file_size = file_size
         self.current_day = -1
         self._read_data()
