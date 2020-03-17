@@ -1,6 +1,6 @@
 import numpy as np 
 import csv
-from sensors.msg import DayTemperature
+from sensors.msg import RawMeasurement
 
 class MeasurementReader():
 
@@ -22,6 +22,10 @@ class MeasurementReader():
         # Read data
         # TODO(jana): read all measurements, put it in self.data
 
+    def has_next_measurement(self):
+        # TODO(jana): return False when there are no more measurements
+        return True
+
     def get_next_measurement(self):
         # TODO(jana): get next measurement from self.data
-        return DayTemperature()
+        return RawMeasurement()
