@@ -6,7 +6,7 @@ from sensors.srv import RecordMeasurement, RecordMeasurementRequest, RecordMeasu
 from utils.analysis import process_measurement, prepare_to_record
 
 def process_service_request(request):
-    to_record = prepare_to_record(request)
+    to_record = prepare_to_record(request.measurement)
     response = RecordMeasurementResponse(True)
     # TODO(jana): to_record na kraj nekog fajla, sve je vec u F; responce True/False u zavisnosti od toga da li je uspelo
 
