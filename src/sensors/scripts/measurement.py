@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 import rospy
-from utils.reader import MeasurementReader
+from reader import MeasurementReader
 from sensors.msg import RawMeasurement
 
 def publish_measurement(publisher, mReader):
