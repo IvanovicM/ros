@@ -10,7 +10,11 @@ def process_service_request(request):
     response = RecordMeasurementResponse(True)
     # TODO(jana): to_record na kraj nekog fajla, sve je vec u F; responce True/False u zavisnosti od toga da li je uspelo
 
-    rospy.loginfo('New measurement recorded.')
+    if (response):
+        new_records_file = open("new_records.txt",'a+')
+        new_records_file.write(to_record + "\n")
+        new_records_file.close()
+        rospy.loginfo('New measurement recorded.')
     return response
 
 def start_recording_service():

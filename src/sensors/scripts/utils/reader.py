@@ -6,7 +6,7 @@ from sensors.msg import RawMeasurement
 class MeasurementReader():
 
     def __init__(self, filename=None, delimiter=',', file_size=10):
-        self.data = None # List of RawMeasurement to be?
+        self.data = []
         self.filename = filename if (filename is not None) else (
             'data/weather_data_nyc_centralpark_2016.csv'
         )
@@ -23,7 +23,6 @@ class MeasurementReader():
         # Read data
         data_iterator = iter(data_csv)
         next(data_iterator)
-        self.data = []
         for row in data_iterator:
             one_day_data = RawMeasurement(
                 row[0], float(row[3]), float(row[1]), float(row[2])
