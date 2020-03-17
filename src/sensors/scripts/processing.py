@@ -1,18 +1,20 @@
 #! /usr/bin/env python
 
 import rospy
+from sensors.msg import ProcessedMeasurement
 from sensors.msg import RawMeasurement
+from utils.analysis import process_measurement
 
 def measurement_processing(measurement, publisher):
-    publisher.publish(measurement)
+    proc_measurement = process_measurement(measurement)
+    publisher.publish(proc_measurement)
 
-    # TODO(jana): one measurement processing
-    rospy.loginfo('Average tempereature: {}'.format(measurement.avg_temp))
+    rospy.loginfo('New measurement processed.')
 
 def start_measurement_processing():
     rospy.init_node('processing', anonymous=False)
     processed_data_publisher = rospy.Publisher(
-        'processed_data_topic', RawMeasurement, queue_size = 10
+        'processed_data_topic', ProcessedMeasurement, queue_size = 10
     )
     rospy.Subscriber(
         'raw_data_topic', RawMeasurement, measurement_processing,
@@ -25,3 +27,4 @@ if __name__ == '__main__':
         start_measurement_processing()
     except rospy.ROSInterruptException:
         pass
+
