@@ -1,10 +1,9 @@
 #! /usr/bin/env python
 
 import rospy
-from analysis import prepare_to_record
 from sensors.msg import ProcessedMeasurement
 from sensors.srv import RecordMeasurement, RecordMeasurementRequest, RecordMeasurementResponse
-from utils.analysis import process_measurement
+from utils.analysis import process_measurement, prepare_to_record
 
 def process_service_request(request):
     to_record = prepare_to_record(request)
