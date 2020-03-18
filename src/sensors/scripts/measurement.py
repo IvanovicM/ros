@@ -8,7 +8,7 @@ def publish_measurement(publisher, mReader):
     measurement = mReader.get_next_measurement()
     publisher.publish(measurement)
     
-    rospy.loginfo('New measurement read.')
+    rospy.loginfo('New measurement for day {}.'.format(measurement.day))
 
 def start_measurements(mReader):
     measurements_publisher = rospy.Publisher(
