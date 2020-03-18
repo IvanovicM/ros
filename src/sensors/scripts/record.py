@@ -26,7 +26,7 @@ def start_recording_service():
 
     new_records_file = open("../../../data/new_records.csv",'a+')
     file_writer = csv.writer(new_records_file, delimiter = ',', lineterminator='\n')
-    file_writer.writerow(['date', 'minimal temperature', 
+    file_writer.writerow(['date', 'minimum temperature', 
     'maximum temperature', 'average temperature'])
     new_records_file.close()
 
