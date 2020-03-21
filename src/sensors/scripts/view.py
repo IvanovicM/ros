@@ -13,6 +13,7 @@ def start_measurement_view():
     rospy.Subscriber(
         'processed_data_topic', ProcessedMeasurement, measurement_view,
     )
+    rospy.loginfo('View node is available.')
     rospy.spin()
 
 if __name__ == '__main__':

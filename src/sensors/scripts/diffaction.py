@@ -25,6 +25,7 @@ class BigTempDiffActionServer:
 def start_diff_action():
     rospy.init_node('big_temp_diff_action_server')
     server = BigTempDiffActionServer()
+    rospy.loginfo('Action node is available.')
     rospy.spin()
 
 if __name__ == '__main__':

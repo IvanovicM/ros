@@ -50,6 +50,7 @@ def start_measurement_processing():
         'raw_data_topic', RawMeasurement, measurement_processing,
         (processed_data_publisher, action_client)
     )
+    rospy.loginfo('Processing node is available.')
     rospy.spin()
 
 if __name__ == '__main__':
