@@ -1,18 +1,19 @@
 #! /usr/bin/env python
 
 import rospy
-from std_msgs.msg import String
+from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
+
+def collect_odometry(odom, command_publisher):
+    rospy.loginfo(odom)
 
 def start_movement_control():
-    measurements_publisher = rospy.Publisher(
-        'movement_topic', String, queue_size = 10
-    )
     rospy.init_node('movement_control', anonymous=False)
-    r = rospy.Rate(100)
-    rospy.loginfo('Movement control node is available.')
+    command_publisher = rospy.Publisher('cmd_vel', Twist)
+    rospy.Subscriber('odom', Odometry, collect_odometry, command_publisher)
+    rospy.spin()
 
-    while True:
-        rospy.loginfo('Movement control is running.')
+    rospy.loginfo('Movement control node is available.')
 
 if __name__ == '__main__':
     try:

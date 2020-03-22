@@ -43,6 +43,8 @@ get_file() {
         file="record.py"
     elif [ $1 == "a" ]; then
         file="diffaction.py"
+    elif [ $1 == "mc" ]; then
+        file="movement_control.py"
     fi
 }
 
