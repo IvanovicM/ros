@@ -45,6 +45,8 @@ get_file() {
         file="diffaction.py"
     elif [ $1 == "mc" ]; then
         file="movement_control.py"
+    elif [ $1 == "dg" ]; then
+        file="dummy_gazebo.py"
     fi
 }
 
