@@ -24,7 +24,9 @@ class StateController():
     def talk_to_user(self):
         while self.curr_state is not self.exit_state:
             self.curr_state.print_message()
-            raw_input('---> ')
+            
+            cmd = raw_input('---> ')
+            self.maybe_change_state(cmd)
 
     def _parse_message(self, msg):
         # Do something with the message
@@ -35,15 +37,16 @@ class StateController():
     def process_odometry(self, odometry):
         self.curr_state.process_odometry(odometry)
 
+    @synchronized
     def maybe_change_state(self, cmd):
         if cmd == 'man':
-            self.state = self.manual_state
+            self.curr_state = self.manual_state
             return True
         if cmd == 'auto':
-            self.state = self.auto_state
+            self.curr_state = self.auto_state
             return True
         if cmd == 'exit':
-            self.state = self.exit_state
+            self.curr_state = self.exit_state
             return True
         return False
         
