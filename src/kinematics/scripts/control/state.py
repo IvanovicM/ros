@@ -38,7 +38,7 @@ class ManualState(State):
         print('To specify lin/ang velocity input (v, w).')
 
     def process_vw_update(self, v, w):
-        # TODO(marina): super().send_cmd(v, w)
+        # TODO(jana): super().send_cmd(v, w) + dobar odnos v i w, kao iz pdf
         pass
 
 class AutoState(State):
@@ -52,7 +52,8 @@ class AutoState(State):
         print('To specify target input (x, y).')
 
     def process_odometry(self, odometry):
-        # TODO(marina): PID 
+        # TODO(jana): kontroler, na osnovu odometry odrediti v i w pa
+        # send_cmd(v, w) + dobar odnos v i w, kao iz pdf
         pass
 
 class ExitState(State):
