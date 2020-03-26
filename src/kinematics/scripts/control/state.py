@@ -35,7 +35,7 @@ class ManualState(State):
     def print_message(self):
         print('\nMANUAL MODE')
         super(ManualState, self).print_message()
-        print('To specify lin/ang velocity input (v, w).')
+        print('To specify lin/ang velocity input (v w).')
 
     def process_vw_update(self, v, w):
         # TODO(jana): super().send_cmd(v, w) + dobar odnos v i w, kao iz pdf
@@ -45,11 +45,18 @@ class AutoState(State):
 
     def __init__(self, command_publisher):
         super(AutoState, self).__init__(command_publisher)
+        self.target_x = 0.0
+        self.target_y = 0.0
     
     def print_message(self):
         print('\nAUTO MODE')
         super(AutoState, self).print_message()
-        print('To specify target input (x, y).')
+        print('To specify target input (x y).')
+
+    def set_target(self, x, y):
+        self.target_x = x 
+        self.target_y = y
+        print('New target is set.')
 
     def process_odometry(self, odometry):
         # TODO(jana): kontroler, na osnovu odometry odrediti v i w pa
