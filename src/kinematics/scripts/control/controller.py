@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+import re
 import rospy
 import threading
 from state import ManualState, AutoState, ExitState
@@ -26,19 +27,25 @@ class StateController():
             self.curr_state.print_message()
             
             cmd = raw_input('---> ')
-            self.maybe_change_state(cmd)
+            self._parse_cmd(cmd)
 
-    def _parse_message(self, msg):
-        # Do something with the message
-        # Will this work like it's in another thread? I doubt it
-        self.print_message()
+    @synchronized
+    def _parse_cmd(self, cmd):
+        state_changed = self._maybe_change_state(cmd)
+        if state_changed:
+            return
+        
+        cmd_sent = self._maybe_send_cmd(cmd)
+        if cmd_sent:
+            return
+
+        print('Wrong command.')
 
     @synchronized
     def process_odometry(self, odometry):
         self.curr_state.process_odometry(odometry)
 
-    @synchronized
-    def maybe_change_state(self, cmd):
+    def _maybe_change_state(self, cmd):
         if cmd == 'man':
             self.curr_state = self.manual_state
             return True
@@ -50,6 +57,26 @@ class StateController():
             return True
         return False
         
-    def update_commands(self, cmd):
-        # TODO(marina)
-        self.cmd = cmd
+    def _maybe_send_cmd(self, cmd):
+        cmd_correct, first_cmd, second_cmd = self._maybe_num_cmd(cmd)
+        if not cmd_correct:
+            return False
+    
+        if self.curr_state == self.auto_state:
+            self.curr_state.set_target(first_cmd, second_cmd)
+            return True
+        if self.curr_state == self.manual_state:
+            self.curr_state.process_vw_update(first_cmd, second_cmd)
+            return True
+        return False
+    
+    def _maybe_num_cmd(self, command):
+        cmds = command.split()
+        if len(cmds) != 2:
+            return False, None, None
+        
+        if (re.match(r'^-?\d+(?:\.\d+)?$', cmds[0]) is None) or (
+            re.match(r'^-?\d+(?:\.\d+)?$', cmds[1]) is None):
+            return False, None, None
+        
+        return True, float(cmds[0]), float(cmds[1])
