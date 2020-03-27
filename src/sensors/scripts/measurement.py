@@ -8,7 +8,7 @@ def publish_measurement(publisher, mReader):
     measurement = mReader.get_next_measurement()
     publisher.publish(measurement)
     
-    rospy.loginfo('New measurement read.')
+    rospy.loginfo('New measurement for day {}.'.format(measurement.day))
 
 def start_measurements(mReader):
     measurements_publisher = rospy.Publisher(
@@ -16,6 +16,7 @@ def start_measurements(mReader):
     )
     rospy.init_node('measurements', anonymous=False)
     r = rospy.Rate(100)
+    rospy.loginfo('Measurement node is available.')
 
     while not rospy.is_shutdown() and mReader.has_next_measurement():
         publish_measurement(measurements_publisher, mReader)
