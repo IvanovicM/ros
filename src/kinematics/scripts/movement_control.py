@@ -2,10 +2,7 @@
 
 import rospy
 from control.controller import StateController
-from geometry_msgs.msg import Point # float64 x, y z, z
-from geometry_msgs.msg import Pose # Point position, Quaternion quaternion, TwistWithCovariance twist
 from geometry_msgs.msg import Twist
-from geometry_msgs.msg import Vector3
 from nav_msgs.msg import Odometry
 
 def collect_odometry(odometry, controller):
@@ -25,4 +22,3 @@ if __name__ == '__main__':
         start_movement_control()
     except rospy.ROSInterruptException:
         pass
-

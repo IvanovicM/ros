@@ -1,10 +1,7 @@
 #! /usr/bin/env python
 
-from geometry_msgs.msg import Point
-from geometry_msgs.msg import Pose
-from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Vector3
-from nav_msgs.msg import Odometry
+from geometry_msgs.msg import Twist
 
 class State(object):
 
@@ -24,9 +21,6 @@ class State(object):
     def process_odometry(self, odometry):
         pass
 
-    def process_vw_update(self, v, w):
-        pass
-
 class ManualState(State):
 
     def __init__(self, command_publisher):
@@ -36,10 +30,6 @@ class ManualState(State):
         print('\nMANUAL MODE')
         super(ManualState, self).print_message()
         print('To specify lin/ang velocity input (v w).')
-
-    def process_vw_update(self, v, w):
-        # TODO(jana): super().send_cmd(v, w) + dobar odnos v i w, kao iz pdf
-        pass
 
 class AutoState(State):
 
