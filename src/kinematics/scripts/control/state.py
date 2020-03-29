@@ -50,7 +50,7 @@ class AutoState(State):
     def print_message(self):
         print('\nAUTO MODE')
         super(AutoState, self).print_message()
-        print('To specify target input and speed (x y v). Default speed value: 1m/s') 
+        print('To specify target [and v] input (x y [v]). [Default v: 1m/s]')
 
     def set_target(self, x, y, v_wanted = 1):
         self.target_x = x 
@@ -73,7 +73,7 @@ class AutoState(State):
         yaw = math.atan2(t3, t4)
         return yaw, pitch, roll
 
-    def _xyz2polar(self, odometry, eps=0.01):
+    def _xyz2polar(self, odometry, eps):
         delta_x = self.target_x - odometry.pose.pose.position.x
         delta_y = self.target_y - odometry.pose.pose.position.y
         if delta_x < eps and delta_y < eps:
@@ -83,17 +83,6 @@ class AutoState(State):
         theta, _, _ = self._quaternion_to_euler(odometry.pose.pose.orientation)
         alpha = np.arctan2(delta_y, delta_x) - theta
         beta = -theta - alpha
-
-        # if (alpha < -np.pi/2 or alpha > np.pi/2):
-        #     if(alpha > np.pi/2):
-        #         alpha = alpha - np.pi/3 - theta
-        #         beta = np.pi - beta
-        #     else:
-        #         alpha = alpha + np.pi/3 + theta
-        #         beta = np.pi + beta
-        #     self.k_p = -abs(self.k_p)
-        # else:
-        #     self.k_p = abs(self.k_p)
 
         if (alpha < -np.pi/2 or alpha > np.pi/2):
             alpha = alpha - np.pi
@@ -105,15 +94,17 @@ class AutoState(State):
             self.k_p = -abs(self.k_p)
         else:
             self.k_p = abs(self.k_p)
+
         return (rho, alpha, beta)
 
-    def process_odometry(self, odometry):
-        rho, alpha, beta = self._xyz2polar(odometry)
+    def process_odometry(self, odometry, eps=0.001):
+        rho, alpha, beta = self._xyz2polar(odometry, eps)
 
         v = self.k_p * rho
         w = self.k_a * alpha + self.k_b * beta
-        #speed_scaling_const = v / w
-        #w = self.v_wanted / speed_scaling_const
+        # if abs(v) >= eps:
+        #     w = self.v_wanted / v * w
+        #     v = self.v_wanted
 
         super(AutoState, self).send_cmd(v, w)
 
