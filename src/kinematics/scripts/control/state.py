@@ -64,8 +64,6 @@ class AutoState(State):
         alpha = np.arctan2(delta_y, delta_x) - theta
         beta = -theta - alpha
 
-        # Ovo je bas bio ozbiljan freestyle 
-
         if (alpha < -np.pi/2 or alpha > np.pi/2):
             if(alpha > np.pi/2):
                 alpha = alpha - np.pi/3 - theta
@@ -79,17 +77,13 @@ class AutoState(State):
         return (rho, alpha, beta)
 
     def process_odometry(self, odometry):
-        # TODO(jana): kontroler, na osnovu odometry odrediti v i w pa
-        # send_cmd(v, w) + dobar odnos v i w, kao iz pdf
         rho, alpha, beta = xyz2polar(odometry)
         v = self.k_p * rho
         w = self.k_a * alpha + self.k_b * beta
         speed_scaling_const = v / w
         w = self.v_wanted / speed_scaling_const
+        
         super(AutoState, self).send_cmd(v, w)
-
-
-
 
 class ExitState(State):
 
