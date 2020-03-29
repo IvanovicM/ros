@@ -65,7 +65,7 @@ class AutoState(State):
 
     def xyz2polar(self, odometry):
         delta_x = self.target_x - odometry.position.x #nisam sigurna da ovo moze ovako, iskreno se nadam da moze
-        delta_y = self.target_y - odometry.position.dalta_y
+        delta_y = self.target_y - odometry.position.y
         rho = sqrt(delta_x**2 + delta_y**2)
         theta = np.arctan2(odometry.position.x**2 + odometry.position.y**2)
         alpha = np.arctan2(delta_y / delta_x) - theta
@@ -80,8 +80,9 @@ class AutoState(State):
             else:
                 alpha = alpha + np.pi/3 + theta
                 beta = np.pi + beta
-            self.k_p = -self.k_p;
-
+            self.k_p = -abs(self.k_p)
+        else:
+            self.k_p = abs(self.k_p)
         return (rho, alpha, beta)
 
     def process_odometry(self, odometry):
@@ -90,8 +91,8 @@ class AutoState(State):
         rho, alpha, beta = xyz2polar(odometry)
         v = self.k_p * rho
         w = self.k_a * alpha + self.k_b * beta
-        const = v / w
-        w = self.v_wanted / const
+        speed_scaling_const = v / w
+        w = self.v_wanted / speed_scaling_const
 
 
 
