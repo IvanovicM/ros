@@ -6,6 +6,7 @@ from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Vector3
 from nav_msgs.msg import Odometry
 import numpy as np
+import math
 
 class State(object):
 
@@ -41,6 +42,7 @@ class AutoState(State):
         super(AutoState, self).__init__(command_publisher)
         self.target_x = 0.0
         self.target_y = 0.0
+        self.v_wanted = 1.0
         self.k_p = 1
         self.k_a = 2
         self.k_b = -1
@@ -56,33 +58,49 @@ class AutoState(State):
         self.v_wanted = v_wanted
         print('New target is set.')
 
-    def xyz2polar(self, odometry):
-        delta_x = self.target_x - odometry.position.x
-        delta_y = self.target_y - odometry.position.y
-        rho = sqrt(delta_x**2 + delta_y**2)
-        theta = np.arctan2(odometry.position.x, odometry.position.y)
+    def _quaternion_to_euler(self, quat):
+        t0 = +2.0 * (quat.w * quat.x + quat.y * quat.z)
+        t1 = +1.0 - 2.0 * (quat.x * quat.x + quat.y * quat.y)
+        roll = math.atan2(t0, t1)
+
+        t2 = +2.0 * (quat.w * quat.y - quat.z * quat.x)
+        t2 = +1.0 if t2 > +1.0 else t2
+        t2 = -1.0 if t2 < -1.0 else t2
+        pitch = math.asin(t2)
+
+        t3 = +2.0 * (quat.w * quat.z + quat.x * quat.y)
+        t4 = +1.0 - 2.0 * (quat.y * quat.y + quat.z * quat.z)
+        yaw = math.atan2(t3, t4)
+        return yaw, pitch, roll
+
+    def _xyz2polar(self, odometry):
+        delta_x = self.target_x - odometry.pose.pose.position.x
+        delta_y = self.target_y - odometry.pose.pose.position.y
+        rho = math.sqrt(delta_x**2 + delta_y**2)
+        theta, _, _ = self._quaternion_to_euler(odometry.pose.pose.orientation)
         alpha = np.arctan2(delta_y, delta_x) - theta
         beta = -theta - alpha
 
-        if (alpha < -np.pi/2 or alpha > np.pi/2):
-            if(alpha > np.pi/2):
-                alpha = alpha - np.pi/3 - theta
-                beta = np.pi - beta
-            else:
-                alpha = alpha + np.pi/3 + theta
-                beta = np.pi + beta
-            self.k_p = -abs(self.k_p)
-        else:
-            self.k_p = abs(self.k_p)
+        # if (alpha < -np.pi/2 or alpha > np.pi/2):
+        #     if(alpha > np.pi/2):
+        #         alpha = alpha - np.pi/3 - theta
+        #         beta = np.pi - beta
+        #     else:
+        #         alpha = alpha + np.pi/3 + theta
+        #         beta = np.pi + beta
+        #     self.k_p = -abs(self.k_p)
+        # else:
+        #     self.k_p = abs(self.k_p)
         return (rho, alpha, beta)
 
     def process_odometry(self, odometry):
-        rho, alpha, beta = xyz2polar(odometry)
+        rho, alpha, beta = self._xyz2polar(odometry)
+
         v = self.k_p * rho
         w = self.k_a * alpha + self.k_b * beta
-        speed_scaling_const = v / w
-        w = self.v_wanted / speed_scaling_const
-        
+        #speed_scaling_const = v / w
+        #w = self.v_wanted / speed_scaling_const
+
         super(AutoState, self).send_cmd(v, w)
 
 class ExitState(State):
