@@ -78,7 +78,7 @@ class AutoState(State):
         delta_y = self.target_y - odometry.pose.pose.position.y
         if delta_x < eps and delta_y < eps:
             return (0, 0, 0)
-            
+
         rho = math.sqrt(delta_x**2 + delta_y**2)
         theta, _, _ = self._quaternion_to_euler(odometry.pose.pose.orientation)
         alpha = np.arctan2(delta_y, delta_x) - theta
@@ -96,7 +96,7 @@ class AutoState(State):
         #     self.k_p = abs(self.k_p)
 
         if (alpha < -np.pi/2 or alpha > np.pi/2):
-            alpha = alpha - np.pi, np.pi / 2
+            alpha = alpha - np.pi
             if(alpha < - np.pi / 2):
                 alpha = 2 * np.pi + alpha
             beta = beta - np.pi
