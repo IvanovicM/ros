@@ -73,9 +73,12 @@ class AutoState(State):
         yaw = math.atan2(t3, t4)
         return yaw, pitch, roll
 
-    def _xyz2polar(self, odometry):
+    def _xyz2polar(self, odometry, eps=0.01):
         delta_x = self.target_x - odometry.pose.pose.position.x
         delta_y = self.target_y - odometry.pose.pose.position.y
+        if delta_x < eps and delta_y < eps:
+            return (0, 0, 0)
+            
         rho = math.sqrt(delta_x**2 + delta_y**2)
         theta, _, _ = self._quaternion_to_euler(odometry.pose.pose.orientation)
         alpha = np.arctan2(delta_y, delta_x) - theta
