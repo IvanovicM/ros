@@ -66,7 +66,7 @@ class StateController():
             self.curr_state.set_target(first_cmd, second_cmd)
             return True
         if self.curr_state == self.manual_state:
-            self.curr_state.process_vw_update(first_cmd, second_cmd)
+            self.curr_state.send_cmd(first_cmd, second_cmd)
             return True
         return False
     
