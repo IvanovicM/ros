@@ -67,8 +67,8 @@ class AutoState(State):
         delta_x = self.target_x - odometry.position.x #nisam sigurna da ovo moze ovako, iskreno se nadam da moze
         delta_y = self.target_y - odometry.position.y
         rho = sqrt(delta_x**2 + delta_y**2)
-        theta = np.arctan2(odometry.position.x**2 + odometry.position.y**2)
-        alpha = np.arctan2(delta_y / delta_x) - theta
+        theta = np.arctan2(odometry.position.x / odometry.position.y)
+        alpha = np.arctan2(delta_y , delta_x) - theta
         beta = -theta - alpha
 
         # Ovo je bas bio ozbiljan freestyle 
