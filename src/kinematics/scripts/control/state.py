@@ -25,10 +25,6 @@ class State(object):
     def process_odometry(self, odometry):
         pass
 
-    def process_vw_update(self, v, w):
-        pass
-
-
 class ManualState(State):
 
     def __init__(self, command_publisher):
@@ -38,10 +34,6 @@ class ManualState(State):
         print('\nMANUAL MODE')
         super(ManualState, self).print_message()
         print('To specify lin/ang velocity input (v w).')
-
-    def process_vw_update(self, v, w):
-        # TODO(jana): super().send_cmd(v, w) + dobar odnos v i w, kao iz pdf
-        super(ManualState, self).send_cmd(v, w)
 
 class AutoState(State):
 
@@ -56,7 +48,7 @@ class AutoState(State):
     def print_message(self):
         print('\nAUTO MODE')
         super(AutoState, self).print_message()
-        print('To specify target input and speed (x y v). Defolt speed value: 1m/s') 
+        print('To specify target input and speed (x y v). Default speed value: 1m/s') 
 
     def set_target(self, x, y, v_wanted = 1):
         self.target_x = x 
@@ -65,7 +57,7 @@ class AutoState(State):
         print('New target is set.')
 
     def xyz2polar(self, odometry):
-        delta_x = self.target_x - odometry.position.x #nisam sigurna da ovo moze ovako, iskreno se nadam da moze
+        delta_x = self.target_x - odometry.position.x
         delta_y = self.target_y - odometry.position.y
         rho = sqrt(delta_x**2 + delta_y**2)
         theta = np.arctan2(odometry.position.x, odometry.position.y)
