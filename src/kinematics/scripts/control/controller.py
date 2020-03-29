@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+import numpy as np
 import re
 import rospy
 import threading
@@ -58,25 +59,33 @@ class StateController():
         return False
         
     def _maybe_send_cmd(self, cmd):
-        cmd_correct, first_cmd, second_cmd = self._maybe_num_cmd(cmd)
-        if not cmd_correct:
+        cmds = self._maybe_num_cmd(cmd)
+        if cmds is None:
             return False
-    
+
         if self.curr_state == self.auto_state:
-            self.curr_state.set_target(first_cmd, second_cmd)
-            return True
+            if len(cmds) == 2:
+                self.curr_state.set_target(cmds[0], cmds[1])
+                return True
+            if len(cmds) == 3:
+                self.curr_state.set_target(cmds[0], cmds[1], cmds[2])
+                return True
+
         if self.curr_state == self.manual_state:
-            self.curr_state.send_cmd(first_cmd, second_cmd)
-            return True
+            if len(cmds) == 2:
+                self.curr_state.send_cmd(cmds[0], cmds[1])
+                return True
+
         return False
     
-    def _maybe_num_cmd(self, command):
-        cmds = command.split()
-        if len(cmds) != 2:
-            return False, None, None
+    def _maybe_num_cmd(self, cmd_string):
+        cmds = cmd_string.split()
+        command_num = len(cmds)
+
+        float_cmds = np.zeros(command_num)
+        for cmd_i in range(command_num):
+            if (re.match(r'^-?\d+(?:\.\d+)?$', cmds[cmd_i]) is None):
+                return None
+            float_cmds[cmd_i] = float(cmds[cmd_i])
         
-        if (re.match(r'^-?\d+(?:\.\d+)?$', cmds[0]) is None) or (
-            re.match(r'^-?\d+(?:\.\d+)?$', cmds[1]) is None):
-            return False, None, None
-        
-        return True, float(cmds[0]), float(cmds[1])
+        return float_cmds
