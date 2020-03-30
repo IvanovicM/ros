@@ -43,9 +43,9 @@ class AutoState(State):
         self.target_x = 0.0
         self.target_y = 0.0
         self.v_wanted = 1.0
-        self.k_p = 1
-        self.k_a = 2
-        self.k_b = -1
+        self.k_p = 0.1
+        self.k_a = 0.2
+        self.k_b = -0.1
     
     def print_message(self):
         print('\nAUTO MODE')
@@ -73,10 +73,10 @@ class AutoState(State):
         yaw = math.atan2(t3, t4)
         return yaw, pitch, roll
 
-    def _xyz2polar(self, odometry, eps):
+    def _xyz2polar(self, odometry, eps=0.01):
         delta_x = self.target_x - odometry.pose.pose.position.x
         delta_y = self.target_y - odometry.pose.pose.position.y
-        if delta_x < eps and delta_y < eps:
+        if abs(delta_x) < eps and abs(delta_y) < eps:
             return (0, 0, 0)
 
         rho = math.sqrt(delta_x**2 + delta_y**2)
@@ -84,21 +84,22 @@ class AutoState(State):
         alpha = np.arctan2(delta_y, delta_x) - theta
         beta = -theta - alpha
 
-        if (alpha < -np.pi/2 or alpha > np.pi/2):
-            alpha = alpha - np.pi
-            if(alpha < - np.pi / 2):
-                alpha = 2 * np.pi + alpha
-            beta = beta - np.pi
-            if(beta < -np.pi):
-                beta = 2 * np.pi + beta
-            self.k_p = -abs(self.k_p)
-        else:
-            self.k_p = abs(self.k_p)
+        # # Backwards?
+        # if (alpha < -np.pi/2 or alpha > np.pi/2):
+        #     alpha = alpha - np.pi
+        #     if(alpha < - np.pi / 2):
+        #         alpha = 2 * np.pi + alpha
+        #     beta = beta - np.pi
+        #     if(beta < -np.pi):
+        #         beta = 2 * np.pi + beta
+        #     self.k_p = -abs(self.k_p)
+        # else:
+        #     self.k_p = abs(self.k_p)
 
         return (rho, alpha, beta)
 
-    def process_odometry(self, odometry, eps=0.001):
-        rho, alpha, beta = self._xyz2polar(odometry, eps)
+    def process_odometry(self, odometry):
+        rho, alpha, beta = self._xyz2polar(odometry)
 
         v = self.k_p * rho
         w = self.k_a * alpha + self.k_b * beta
