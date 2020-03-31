@@ -42,17 +42,17 @@ class AutoState(State):
         super(AutoState, self).__init__(command_publisher)
         self.target_x = 0.0
         self.target_y = 0.0
-        self.v_wanted = 1.0
-        self.k_p = 0.1
-        self.k_a = 0.2
-        self.k_b = -0.1
+        self.v_wanted = 0.3
+        self.k_p = 0.05
+        self.k_a = 0.1
+        self.k_b = -0.05
     
     def print_message(self):
         print('\nAUTO MODE')
         super(AutoState, self).print_message()
-        print('To specify target [and v] input (x y [v]). [Default v: 1m/s]')
+        print('To specify target [and v] input (x y [v]). [Default v: 0.3m/s]')
 
-    def set_target(self, x, y, v_wanted = 1):
+    def set_target(self, x, y, v_wanted = 0.3):
         self.target_x = x 
         self.target_y = y
         self.v_wanted = v_wanted
@@ -82,30 +82,26 @@ class AutoState(State):
         rho = math.sqrt(delta_x**2 + delta_y**2)
         theta, _, _ = self._quaternion_to_euler(odometry.pose.pose.orientation)
         alpha = np.arctan2(delta_y, delta_x) - theta
-        beta = -theta - alpha
+        beta = - theta - alpha
 
-        # # Backwards?
-        if (alpha < -np.pi/2 or alpha > np.pi/2):
-            alpha = np.mod(alpha - np.pi, np.pi / 2)
-            if(alpha < - np.pi / 2):
-                alpha = np.pi / 2 + alpha
-            beta = np.mod(beta - np.pi, np.pi)
-            if(beta < -np.pi):
-                beta = np.pi + beta
+        # # # Backwards?
+        if (alpha <= -np.pi/2 or alpha >= np.pi/2):
+            alpha = np.mod(np.arctan2(delta_y, delta_x) - np.pi - theta, np.pi / 2)
+            beta = np.mod(-(np.pi / 2 - beta) - np.pi + theta, np.pi)
             self.k_p = -abs(self.k_p)
         else:
             self.k_p = abs(self.k_p)
 
         return (rho, alpha, beta)
 
-    def process_odometry(self, odometry):
+    def process_odometry(self, odometry, eps = 0.01):
         rho, alpha, beta = self._xyz2polar(odometry)
 
         v = self.k_p * rho
         w = self.k_a * alpha + self.k_b * beta
-        # if abs(v) >= eps:
-        #     w = self.v_wanted / v * w
-        #     v = self.v_wanted
+        if abs(v) >= eps:
+            w = abs(self.v_wanted / v) * w
+            v = np.sign(v) * self.v_wanted
 
         super(AutoState, self).send_cmd(v, w)
 
