@@ -85,16 +85,16 @@ class AutoState(State):
         beta = -theta - alpha
 
         # # Backwards?
-        # if (alpha < -np.pi/2 or alpha > np.pi/2):
-        #     alpha = alpha - np.pi
-        #     if(alpha < - np.pi / 2):
-        #         alpha = 2 * np.pi + alpha
-        #     beta = beta - np.pi
-        #     if(beta < -np.pi):
-        #         beta = 2 * np.pi + beta
-        #     self.k_p = -abs(self.k_p)
-        # else:
-        #     self.k_p = abs(self.k_p)
+        if (alpha < -np.pi/2 or alpha > np.pi/2):
+            alpha = np.mod(alpha - np.pi, np.pi / 2)
+            if(alpha < - np.pi / 2):
+                alpha = np.pi / 2 + alpha
+            beta = np.mod(beta - np.pi, np.pi)
+            if(beta < -np.pi):
+                beta = np.pi + beta
+            self.k_p = -abs(self.k_p)
+        else:
+            self.k_p = abs(self.k_p)
 
         return (rho, alpha, beta)
 
