@@ -60,6 +60,13 @@ class AutoState(State):
         self.v_wanted = v_wanted
         print('New target is set.')
 
+    def _scale_angle(self, angle):
+        while angle <= -math.pi:
+            angle = angle + 2*math.pi
+        while angle > math.pi:
+            angle = angle - 2*math.pi
+        return angle / math.pi
+
     def _quaternion_to_euler(self, quat):
         t0 = +2.0 * (quat.w * quat.x + quat.y * quat.z)
         t1 = +1.0 - 2.0 * (quat.x * quat.x + quat.y * quat.y)
@@ -76,17 +83,21 @@ class AutoState(State):
         return yaw, pitch, roll
 
     def _xyz2polar(self, odometry, eps=0.01):
+        theta, _, _ = self._quaternion_to_euler(odometry.pose.pose.orientation)
+
+        # Error
         delta_x = self.target_x - odometry.pose.pose.position.x
         delta_y = self.target_y - odometry.pose.pose.position.y
-        if abs(delta_x) < eps and abs(delta_y) < eps:
-            return (0, 0, 0)
+        delta_theta = self.target_theta - theta
+        #if rho < eps and abs(delta_theta) < eps:
+        #    return (0, 0, 0)
 
+        # Rho, alpha and beta
         rho = math.sqrt(delta_x**2 + delta_y**2)
-        theta, _, _ = self._quaternion_to_euler(odometry.pose.pose.orientation)
         alpha = np.arctan2(delta_y, delta_x) - theta
-        beta = - theta - alpha
+        beta = - theta - alpha #+ self.target_theta
 
-        # # # Backwards?
+        # Backwards?
         if (alpha <= -np.pi/2 or alpha >= np.pi/2):
             alpha = np.mod(np.arctan2(delta_y, delta_x) - np.pi - theta, np.pi / 2)
             beta = np.mod(-(np.pi / 2 - beta) - np.pi + theta, np.pi)
