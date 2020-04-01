@@ -64,11 +64,11 @@ class StateController():
             return False
 
         if self.curr_state == self.auto_state:
-            if len(cmds) == 2:
-                self.curr_state.set_target(cmds[0], cmds[1])
-                return True
             if len(cmds) == 3:
                 self.curr_state.set_target(cmds[0], cmds[1], cmds[2])
+                return True
+            if len(cmds) == 4:
+                self.curr_state.set_target(cmds[0], cmds[1], cmds[2], cmds[3])
                 return True
 
         if self.curr_state == self.manual_state:

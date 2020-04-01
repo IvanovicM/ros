@@ -42,6 +42,7 @@ class AutoState(State):
         super(AutoState, self).__init__(command_publisher)
         self.target_x = 0.0
         self.target_y = 0.0
+        self.target_theta = 0.0
         self.v_wanted = 0.3
         self.k_p = 0.05
         self.k_a = 0.1
@@ -50,11 +51,12 @@ class AutoState(State):
     def print_message(self):
         print('\nAUTO MODE')
         super(AutoState, self).print_message()
-        print('To specify target [and v] input (x y [v]). [Default v: 0.3m/s]')
+        print('To specify target [and v] input (x y theta [v]). [Default v: 0.3m/s]')
 
-    def set_target(self, x, y, v_wanted = 0.3):
+    def set_target(self, x, y, theta, v_wanted = 0.3):
         self.target_x = x 
         self.target_y = y
+        self.target_theta = theta
         self.v_wanted = v_wanted
         print('New target is set.')
 
