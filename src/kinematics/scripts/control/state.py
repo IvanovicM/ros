@@ -56,7 +56,7 @@ class AutoState(State):
     def set_target(self, x, y, theta, v_wanted = 0.3):
         self.target_x = x 
         self.target_y = y
-        self.target_theta = theta
+        self.target_theta = self._scale_angle(theta)
         self.v_wanted = v_wanted
         print('New target is set.')
 
@@ -65,7 +65,7 @@ class AutoState(State):
             angle = angle + 2*math.pi
         while angle > math.pi:
             angle = angle - 2*math.pi
-        return angle / math.pi
+        return angle
 
     def _quaternion_to_euler(self, quat):
         t0 = +2.0 * (quat.w * quat.x + quat.y * quat.z)
@@ -82,32 +82,31 @@ class AutoState(State):
         yaw = math.atan2(t3, t4)
         return yaw, pitch, roll
 
-    def _xyz2polar(self, odometry, eps=0.01):
+    def _xyz2polar(self, odometry):
         theta, _, _ = self._quaternion_to_euler(odometry.pose.pose.orientation)
+        theta = self._scale_angle(theta)
 
         # Error
         delta_x = self.target_x - odometry.pose.pose.position.x
         delta_y = self.target_y - odometry.pose.pose.position.y
-        delta_theta = self.target_theta - theta
-        #if rho < eps and abs(delta_theta) < eps:
-        #    return (0, 0, 0)
+        delta_theta = self._scale_angle(self.target_theta - theta)
 
         # Rho, alpha and beta
         rho = math.sqrt(delta_x**2 + delta_y**2)
-        alpha = np.arctan2(delta_y, delta_x) - theta
-        beta = - theta - alpha #+ self.target_theta
+        alpha = self._scale_angle(np.arctan2(delta_y, delta_x) - theta)
+        beta = self._scale_angle(-theta - alpha + self.target_theta)
 
         # Backwards?
-        if (alpha <= -np.pi/2 or alpha >= np.pi/2):
-            alpha = np.mod(np.arctan2(delta_y, delta_x) - np.pi - theta, np.pi / 2)
-            beta = np.mod(-(np.pi / 2 - beta) - np.pi + theta, np.pi)
+        if alpha <= -math.pi/2 or alpha > math.pi/2:
+            alpha = self._scale_angle(alpha + math.pi)
+            beta = self._scale_angle(beta + math.pi)
             self.k_p = -abs(self.k_p)
         else:
             self.k_p = abs(self.k_p)
 
         return (rho, alpha, beta)
 
-    def process_odometry(self, odometry, eps = 0.01):
+    def process_odometry(self, odometry, eps=0.01):
         rho, alpha, beta = self._xyz2polar(odometry)
 
         v = self.k_p * rho
