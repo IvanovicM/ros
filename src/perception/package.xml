@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>kinematics</name>
+  <name>perception</name>
   <version>0.0.0</version>
-  <description>The kinematics package</description>
+  <description>The perception package</description>
 
   <maintainer email="student@todo.todo">student</maintainer>
 

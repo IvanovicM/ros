@@ -55,3 +55,4 @@ CATKIN_IGNORE
 /images/
 /data/
 /statement/
+*.world
