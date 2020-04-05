@@ -17,11 +17,17 @@ Firstly, you can find very simple examples of running any ROS Node. To find them
 
 The way they communicate is shown in the picture below. Node called */measurement* gets and publishes data from sensors, while the node */processing* processes it and sends further on.
 
+<img src="images/intro_to_ros.png">
+
 ## Kinematics
 
 A very simple robot movement control is implemented in the package *kinematics*, including controllers for manual and autonomous movement.
 
 To communicate with the controller just type in the mode you would like to use (manual or auto), followed by manually given velocity commands (for manual mode) or target position (for auto mode). Below you find an example of the robot position after the executed commands sent by the user.
+
+| <img src="images/kinematics.png">|
+|:---:|
+| Robot's intial (x=0, y=0, \theta=0) and target position (x=1.5, y=2.5, \theta=\pi / 2) |
 
 ## Perception
 

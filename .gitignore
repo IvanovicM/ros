@@ -52,7 +52,6 @@ CATKIN_IGNORE
 
 # Project related
 .DS_Store
-/images/
 /data/
 /statement/
 *.world
