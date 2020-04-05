@@ -27,7 +27,7 @@ To communicate with the controller just type in the mode you would like to use (
 
 | <img src="images/kinematics.png" width="30%">|
 |:---:|
-| Robot's initial position (x=0, y=0, theta=0) and target position (x=1.5, y=2.5, theta=pi / 2) |
+| Robot's initial position (<img src="https://render.githubusercontent.com/render/math?math=x=0,y=0,\theta=0">) and target position (<img src="https://render.githubusercontent.com/render/math?math=x=1.5,y=2.5,\theta=\frac{\pi}{2}">) |
 
 ## Perception
 
