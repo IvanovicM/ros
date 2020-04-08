@@ -28,6 +28,8 @@ get_package() {
         pkg="sensors"
     elif [ $1 == "k" ]; then
         pkg="kinematics"
+    elif [ $1 == "p" ]; then
+        pkg="perception"
     fi
 }
 
@@ -47,6 +49,8 @@ get_file() {
         file="movement_control.py"
     elif [ $1 == "dg" ]; then
         file="dummy_gazebo.py"
+    elif [ $1 == "ld" ]; then
+        file="line_detection.py"
     fi
 }
 
