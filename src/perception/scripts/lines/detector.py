@@ -1,3 +1,4 @@
+import geometry
 import math
 
 from geometry_msgs.msg import Point
@@ -5,7 +6,12 @@ from sensor_msgs.msg import LaserScan
 
 class LinesDetector():
 
+    def __init__(self):
+        self.threshold = 0.1
+        self.ind = False
+
     def detect_lines(self, laser_scan):
+        self.ind = True
         ranges = self._preprocess_ranges(
             laser_scan.ranges, laser_scan.range_min, laser_scan.range_max
         )
@@ -42,5 +48,36 @@ class LinesDetector():
         return Point(x=x, y=y, z=0)
 
     def _split_n_merge(self, points):
-        # TODO
-        return points
+        if points is None or len(points) < 2:
+            return []
+        lines = self._split(points, [[points[0], points[-1]]])
+        lines = self._merge(lines)
+
+        return lines
+
+    def _split(self, points, lines):
+        if len(points) < 2:
+            lines
+        a = points[0]
+        b = points[-1]
+
+        furthest_distance, furthest_point_idx = (
+            geometry.get_furthest_point(points, a, b)
+        )
+
+        if furthest_distance < self.threshold:
+            # No need for splitting anymore
+            return lines
+
+        left_lines = self._split(
+            points[0 : (furthest_point_idx+1)],
+            [[a, points[furthest_point_idx]]]
+        )
+        right_lines = self._split(
+            points[furthest_point_idx :],
+            [[points[furthest_point_idx], b]]
+        )
+        return left_lines + right_lines
+
+    def _merge(self, lines):
+        return lines
