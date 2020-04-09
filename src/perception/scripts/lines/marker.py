@@ -15,20 +15,14 @@ class MarkerPublisher():
         self.max_points_num = 720
         self.max_lines_num = 50
 
-    def publish(self, points):
-        if points is None:
+    def publish(self, lines):
+        if lines is None:
             return
             
         markers = []
-        id = 0
-        for i in range(len(points)):
-            marker = self._get_point_marker(id, points[i])
+        for i in range(len(lines)):
+            marker = self._get_line_marker(i, lines[i])
             markers.append(marker)
-            id += 1
-        while id < self.max_points_num:
-            marker = self._get_point_marker(id, Point(x=0, y=0, z=0), a=0)
-            markers.append(marker)
-            id += 1
 
         marker_array = MarkerArray(markers=markers)
         self.publisher.publish(marker_array)
@@ -49,17 +43,17 @@ class MarkerPublisher():
 
         return marker
 
-    def _get_lines_marker(self, id, points):
+    def _get_line_marker(self, id, points, a=1):
         marker = Marker(
             ns='walls',
             pose=Pose(position=Point(x=0, y=0, z=0)),
-            action=action,
+            action=0,
             type=4,
             id=id,
             points=points,
-            color=ColorRGBA(g=1, a=1)
+            color=ColorRGBA(g=1, a=a)
         )
         marker.header.frame_id = 'base_link'
-        marker.scale.x = 0.08
+        marker.scale.x = 0.03
 
         return marker

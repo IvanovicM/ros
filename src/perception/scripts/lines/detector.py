@@ -1,5 +1,4 @@
 import geometry
-import math
 
 from geometry_msgs.msg import Point
 from sensor_msgs.msg import LaserScan
@@ -32,7 +31,7 @@ class LinesDetector():
         points = []
         for i in range(len(ranges)):
             if ranges[i] is not None:
-                new_point = self._polar2xyz(
+                new_point = geometry.polar2xyz(
                     ranges[i],
                     i * laser_scan.angle_increment + laser_scan.angle_min
                 )
@@ -41,11 +40,6 @@ class LinesDetector():
         if len(points) == 0:
             return None
         return points
-
-    def _polar2xyz(self, rho, alpha):
-        x = rho * math.cos(alpha)
-        y = rho * math.sin(alpha)
-        return Point(x=x, y=y, z=0)
 
     def _split_n_merge(self, points):
         if points is None or len(points) < 2:

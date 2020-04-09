@@ -2,6 +2,11 @@ import math
 
 from geometry_msgs.msg import Point
 
+def polar2xyz(rho, alpha):
+    x = rho * math.cos(alpha)
+    y = rho * math.sin(alpha)
+    return Point(x=x, y=y, z=0)
+
 def distance(a, b):
     # Distance |ab|
     return math.sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y))
