@@ -1,4 +1,5 @@
-import rospy
+import math
+
 from geometry_msgs.msg import Point
 from geometry_msgs.msg import Pose
 from lines.detector import LinesDetector
@@ -11,33 +12,54 @@ class MarkerPublisher():
 
     def __init__(self, publisher):
         self.publisher = publisher
+        self.max_points_num = 720
+        self.max_lines_num = 50
 
-    def publish(self, lines):
-        points = [Point(x=1, y=1, z=0), Point(x=1, y=-1, z=0)]
-        marker1 = Marker(
+    def publish(self, points):
+        if points is None:
+            return
+            
+        markers = []
+        id = 0
+        for i in range(len(points)):
+            marker = self._get_point_marker(id, points[i])
+            markers.append(marker)
+            id += 1
+        while id < self.max_points_num:
+            marker = self._get_point_marker(id, Point(x=0, y=0, z=0), a=0)
+            markers.append(marker)
+            id += 1
+
+        marker_array = MarkerArray(markers=markers)
+        self.publisher.publish(marker_array)
+    
+    def _get_point_marker(self, id, position, a=1):
+        marker = Marker(
+            ns='scans',
+            pose=Pose(position=position),
+            action=0,
+            type=2,
+            id=id,
+            color=ColorRGBA(g=1, a=a)
+        )
+        marker.header.frame_id = 'base_link'
+        marker.scale.x = 0.08
+        marker.scale.y = 0.08
+        marker.scale.z = 0.08
+
+        return marker
+
+    def _get_lines_marker(self, id, points):
+        marker = Marker(
             ns='walls',
             pose=Pose(position=Point(x=0, y=0, z=0)),
-            action=0,
+            action=action,
             type=4,
-            id=0,
+            id=id,
             points=points,
             color=ColorRGBA(g=1, a=1)
         )
-        marker1.header.frame_id = 'base_link'
-        marker1.scale.x = 0.05
+        marker.header.frame_id = 'base_link'
+        marker.scale.x = 0.08
 
-        points = [Point(x=-1, y=1, z=0), Point(x=-1, y=-1, z=0)]
-        marker2 = Marker(
-            ns='walls',
-            pose=Pose(position=Point(x=0, y=0, z=0)),
-            action=0,
-            type=4,
-            id=1,
-            points=points,
-            color=ColorRGBA(b=1, a=1)
-        )
-        marker2.header.frame_id = 'base_link'
-        marker2.scale.x = 0.05
-
-        ma = MarkerArray(markers=[marker2, marker1])
-        self.publisher.publish(ma)
+        return marker

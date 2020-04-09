@@ -10,7 +10,7 @@ def collect_laser_scan(laser_scan, args):
     detector = args[0]
     marker_publisher = args[1]
 
-    lines = detector.detect_lines(laser_scan)
+    points, lines = detector.detect_lines(laser_scan)
     marker_publisher.publish(lines)
 
 def start_line_detection():
