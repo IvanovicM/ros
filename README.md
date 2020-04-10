@@ -35,6 +35,10 @@ Obstacles detection, particularly walls detection, is implemented in the package
 
 If you run *Rviz* in parallel, you can see the laser scan and deteceted walls visualized. On the following image(s) you can see the current robot's position in the world, laser scan visualized in Rviz, and detected wall lines, also visualized in Rviz.
 
+| <img src="images/maze.png" width="30%">| <img src="images/walls.png" width="30%">|
+|:---:|:---:|
+| Robot's position in the world| Detected walls, visualized in Rviz |
+
 # How to run these scripts?
 
 To run any script simply type the following command(s) in a terminal:
