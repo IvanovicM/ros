@@ -33,9 +33,9 @@ To communicate with the controller just type in the mode you would like to use (
 
 Obstacles detection, particularly walls detection, is implemented in the package *perception*. *Split and Merge* algorithm is applied to the data retrived from laser scan through the topic */kobuki/laser/scan*, after which lines are extracted.
 
-If you run *Rviz* in parallel, you can see the laser scan and deteceted walls visualized. On the following image(s) you can see the current robot's position in the world, laser scan visualized in Rviz, and detected wall lines, also visualized in Rviz.
+If you run *Rviz* in parallel, you can see the laser scan and deteceted walls visualized. On the following image(s) you can see the current robot's position in the world and detected walls visualized in Rviz.
 
-| <img src="images/maze.png" width="30%">| <img src="images/walls.png" width="30%">|
+| <img src="images/maze.png" width="80%">| <img src="images/walls.png" width="80%">|
 |:---:|:---:|
 | Robot's position in the world| Detected walls, visualized in Rviz |
 
