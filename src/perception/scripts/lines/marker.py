@@ -12,6 +12,7 @@ class MarkerPublisher():
 
     def __init__(self, publisher):
         self.publisher = publisher
+        self.old_lines_num = 0
 
     def publish(self, lines):
         if lines is None:
@@ -27,9 +28,16 @@ class MarkerPublisher():
         for i in range(len(lines)):
             marker = self._get_line_marker(i, lines[i])
             markers.append(marker)
+        self.new_lines_num = len(lines)
         return markers
 
     def _delete_old_lines(self, markers):
+        if self.new_lines_num < self.old_lines_num:
+            for i in range(self.old_lines_num - self.new_lines_num):
+                marker = self._get_line_marker(i + self.new_lines_num, [], a=0)
+                markers.append(marker)
+            
+        self.old_lines_num = self.new_lines_num
         return markers
     
     def _get_point_marker(self, id, position, a=1):
