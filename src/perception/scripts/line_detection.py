@@ -1,10 +1,21 @@
 #! /usr/bin/env python
 
 import rospy
+
+from lines import geometry
 from lines.detector import LinesDetector
 from lines.marker import MarkerPublisher
 from sensor_msgs.msg import LaserScan
 from visualization_msgs.msg import MarkerArray
+
+def print_lines(lines):
+    if lines is None:
+        return
+
+    print('==============================')
+    for line in lines:
+        rho, alpha = geometry.xyz2polar(line)
+        print('rho = {:.2f}, alpha = {:.2f}'.format(rho, alpha))
 
 def collect_laser_scan(laser_scan, args):
     detector = args[0]
@@ -12,6 +23,7 @@ def collect_laser_scan(laser_scan, args):
 
     points, lines = detector.detect_lines(laser_scan)
     marker_publisher.publish(lines)
+    print_lines(lines)
 
 def start_line_detection():
     rospy.init_node('line_detection', anonymous=False)
