@@ -13,6 +13,7 @@ class MarkerPublisher():
     def __init__(self, publisher):
         self.publisher = publisher
         self.old_lines_num = 0
+        self.is_color_green = True
 
     def publish(self, lines):
         if lines is None:
@@ -57,6 +58,10 @@ class MarkerPublisher():
         return marker
 
     def _get_line_marker(self, id, points, a=1):
+        g = 1 if self.is_color_green else 0
+        b = 1 if not self.is_color_green else 0
+        self.is_color_green = not self.is_color_green
+
         marker = Marker(
             ns='walls',
             pose=Pose(position=Point(x=0, y=0, z=0)),
@@ -64,7 +69,7 @@ class MarkerPublisher():
             type=4,
             id=id,
             points=points,
-            color=ColorRGBA(g=1, a=a)
+            color=ColorRGBA(g=g, b=b, a=a)
         )
         marker.header.frame_id = 'base_link'
         marker.scale.x = 0.03

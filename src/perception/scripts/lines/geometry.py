@@ -2,9 +2,10 @@ import math
 
 from geometry_msgs.msg import Point
 
-def xyz2polar(line):
-    # TODO
-    return 1, 0
+def line2polar(line):
+    rho = distance_from_line(line[0], line[1], Point(0, 0, 0))
+    alpha = 0
+    return rho, alpha
 
 def polar2xyz(rho, alpha):
     x = rho * math.cos(alpha)

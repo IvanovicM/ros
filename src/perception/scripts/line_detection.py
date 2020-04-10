@@ -2,7 +2,7 @@
 
 import rospy
 
-from lines import geometry
+from lines.geometry import line2polar
 from lines.detector import LinesDetector
 from lines.marker import MarkerPublisher
 from sensor_msgs.msg import LaserScan
@@ -14,8 +14,11 @@ def print_lines(lines):
 
     print('==============================')
     for line in lines:
-        rho, alpha = geometry.xyz2polar(line)
-        print('rho = {:.2f}, alpha = {:.2f}'.format(rho, alpha))
+        rho, alpha = line2polar(line)
+        print('a = ({:.2f}, {:.2f}) b = ({:.2f}, {:.2f})'.format(
+            line[0].x, line[0].y, line[1].x, line[1].y)
+        )
+        print('rho = {:.2f}, alpha = {:.2f}\n'.format(rho, alpha))
 
 def collect_laser_scan(laser_scan, args):
     detector = args[0]
