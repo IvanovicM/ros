@@ -7,10 +7,14 @@ class LinesDetector():
 
     def __init__(self):
         self.threshold = 0.1
-        self.ind = False
+        self.detection_period = 10
+        self.counter = -1
 
     def detect_lines(self, laser_scan):
-        self.ind = True
+        self.counter = (self.counter + 1) % self.detection_period
+        if self.counter != 0:
+            return None
+
         ranges = self._preprocess_ranges(
             laser_scan.ranges, laser_scan.range_min, laser_scan.range_max
         )

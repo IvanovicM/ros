@@ -12,20 +12,25 @@ class MarkerPublisher():
 
     def __init__(self, publisher):
         self.publisher = publisher
-        self.max_points_num = 720
-        self.max_lines_num = 50
 
     def publish(self, lines):
         if lines is None:
             return
             
-        markers = []
-        for i in range(len(lines)):
-            marker = self._get_line_marker(i, lines[i])
-            markers.append(marker)
+        markers = self._show_new_lines(lines, [])
+        markers = self._delete_old_lines(markers)
 
         marker_array = MarkerArray(markers=markers)
         self.publisher.publish(marker_array)
+
+    def _show_new_lines(self, lines, markers):
+        for i in range(len(lines)):
+            marker = self._get_line_marker(i, lines[i])
+            markers.append(marker)
+        return markers
+
+    def _delete_old_lines(self, markers):
+        return markers
     
     def _get_point_marker(self, id, position, a=1):
         marker = Marker(
