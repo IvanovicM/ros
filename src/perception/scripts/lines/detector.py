@@ -13,7 +13,7 @@ class LinesDetector():
     def detect_lines(self, laser_scan):
         self.counter = (self.counter + 1) % self.detection_period
         if self.counter != 0:
-            return None
+            return None, None
 
         ranges = self._preprocess_ranges(
             laser_scan.ranges, laser_scan.range_min, laser_scan.range_max
@@ -48,34 +48,43 @@ class LinesDetector():
     def _split_n_merge(self, points):
         if points is None or len(points) < 2:
             return []
-        lines = self._split(points, [[points[0], points[-1]]])
-        lines = self._merge(lines)
+        line_idx = self._split(points, 0, [[0, len(points) - 1]])
+        lines = self._merge(points, line_idx)
 
-        return lines
+        return None
 
-    def _split(self, points, lines):
+    def _split(self, points, start_idx, line_idx):
         if len(points) < 2:
-            lines
+            return line_idx
         a = points[0]
         b = points[-1]
 
         furthest_distance, furthest_point_idx = (
             geometry.get_furthest_point(points, a, b)
         )
-
         if furthest_distance < self.threshold:
             # No need for splitting anymore
-            return lines
+            return line_idx
 
-        left_lines = self._split(
+        left_line_idx = self._split(
             points[0 : (furthest_point_idx+1)],
-            [[a, points[furthest_point_idx]]]
+            0,
+            [[0, furthest_point_idx]]
         )
-        right_lines = self._split(
+        left_line_idx = [[x + start_idx, y + start_idx] for [x, y] in left_line_idx]
+        right_line_idx = self._split(
             points[furthest_point_idx :],
-            [[points[furthest_point_idx], b]]
+            furthest_point_idx,
+            [[furthest_point_idx, len(points) - 1]]
         )
-        return left_lines + right_lines
+        right_line_idx = [[x + start_idx, y + start_idx] for [x, y] in right_line_idx]
+        
+        return left_line_idx + right_line_idx
 
-    def _merge(self, lines):
+    def _merge(self, points, line_idx):
+        lines = []
+        for idx in line_idx:
+            line = [points[idx[0]], points[idx[1]]]
+            lines.append(line)
+
         return lines
