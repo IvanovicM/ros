@@ -51,7 +51,7 @@ class LinesDetector():
         line_idx = self._split(points, 0, [[0, len(points) - 1]])
         lines = self._merge(points, line_idx)
 
-        return None
+        return lines
 
     def _split(self, points, start_idx, line_idx):
         if len(points) < 2:
@@ -66,25 +66,49 @@ class LinesDetector():
             # No need for splitting anymore
             return line_idx
 
-        left_line_idx = self._split(
+        left_idx = self._split(
             points[0 : (furthest_point_idx+1)],
             0,
             [[0, furthest_point_idx]]
         )
-        left_line_idx = [[x + start_idx, y + start_idx] for [x, y] in left_line_idx]
-        right_line_idx = self._split(
+        left_idx = [[x + start_idx, y + start_idx] for [x, y] in left_idx]
+        right_idx = self._split(
             points[furthest_point_idx :],
             furthest_point_idx,
             [[furthest_point_idx, len(points) - 1]]
         )
-        right_line_idx = [[x + start_idx, y + start_idx] for [x, y] in right_line_idx]
+        right_idx = [[x + start_idx, y + start_idx] for [x, y] in right_idx]
         
-        return left_line_idx + right_line_idx
+        return left_idx + right_idx
 
     def _merge(self, points, line_idx):
-        lines = []
-        for idx in line_idx:
-            line = [points[idx[0]], points[idx[1]]]
-            lines.append(line)
+        if line_idx is None or len(line_idx) < 1:
+            return None
 
+        lines = []
+        prev_idx = line_idx[0]
+
+        for i in range(1, len(line_idx)):
+            next_idx = line_idx[i]
+            if self._should_merge(prev_idx, next_idx, points):
+                prev_idx = [prev_idx[0], next_idx[1]]
+            else:
+                new_line = [points[prev_idx[0]], points[prev_idx[1]]]
+                lines.append(new_line)
+                prev_idx = next_idx
+
+        new_line = [points[prev_idx[0]], points[prev_idx[1]]]
+        lines.append(new_line)
         return lines
+
+    def _should_merge(self, prev_idx, next_idx, points):
+        furthest_distance, furthest_point_idx = (
+            geometry.get_furthest_point(
+                points[prev_idx[0]:next_idx[1]+1],
+                points[prev_idx[0]],
+                points[next_idx[1]]
+            )
+        )
+        if furthest_distance < self.threshold:
+            return True
+        return False
