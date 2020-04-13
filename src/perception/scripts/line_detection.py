@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+import math
 import rospy
 
 from lines.geometry import line2polar
@@ -18,7 +19,7 @@ def print_lines(lines):
         print('a = ({:.2f}, {:.2f}) b = ({:.2f}, {:.2f})'.format(
             line[0].x, line[0].y, line[1].x, line[1].y)
         )
-        print('rho = {:.2f}, alpha = {:.2f}\n'.format(rho, alpha))
+        print('rho = {:.2f}, alpha = {:.2f} * pi\n'.format(rho, alpha/math.pi))
 
 def collect_laser_scan(laser_scan, args):
     detector = args[0]
