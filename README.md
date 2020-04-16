@@ -39,6 +39,8 @@ If you run *Rviz* in parallel, you can see the laser scan and deteceted walls vi
 |:---:|:---:|
 | Robot's position in the world| Detected walls, visualized in Rviz |
 
+## Kalman Filter
+
 # How to run these scripts?
 
 To run any script simply type the following command(s) in a terminal:
