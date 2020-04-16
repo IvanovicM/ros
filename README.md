@@ -1,7 +1,7 @@
 # ros
 Simple projects in Robot Operating System (ROS).
 
-ROS is an open-source system used for programming robots. In this project you can find multiple packages implemented for *autonomous robot*, specifically *Turtlebot*.
+ROS is an open-source system used for programming robots. In this project you can find multiple packages implemented for *autonomous robot*, specifically *Turtlebot* (for this project Turtlebot2 was used, but with small modifications it can be used for Turtlebot3 as well).
 
 # What can I find here?
 
@@ -53,8 +53,7 @@ You can run any top-level script from the packages: *sensors*, *kinematics* and 
 Note that if you want to perform world and robot simulation you should have **Gazebo**. Therefore, before running the aforementioned scripts you should run Gazebo by typing the following command(s) in a terminal:
 
 ```shell
-  export TURTLEBOT3_MODEL=burger
-  roslaunch turtlebot3_gazebo turtlebot3_world.launch
+  roslaunch turtlebot_gazebo turtlebot_world.launch
 ```
 
 If you want to visualize obstacles detected by laser scan or extracted walls, simply type the following command(a) in a terminal to run **Rviz**. After that, add topics */kobuki/laser/scan* and */visualization_marker_array*.
