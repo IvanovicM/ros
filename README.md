@@ -41,6 +41,8 @@ If you run *Rviz* in parallel, you can see the laser scan and deteceted walls vi
 
 ## Kalman Filter
 
+Localization with Kalman Filter is implemented in the package *kalman*. Note that this package depends on laser line extraction from [this repo](https://github.com/kam3k/laser_line_extraction).
+
 # How to run these scripts?
 
 To run any script simply type the following command(s) in a terminal:
