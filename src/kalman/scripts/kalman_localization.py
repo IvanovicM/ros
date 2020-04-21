@@ -8,6 +8,7 @@ from sensor_msgs.msg import JointState
 
 def collect_joint_states(joint_states, kalman_filter):
     kalman_filter.save_joint_states(joint_states)
+    kalman_filter.perform()
 
 def collect_line_segments(line_segments, kalman_filter):
     kalman_filter.save_line_segments(line_segments)

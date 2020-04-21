@@ -11,11 +11,39 @@ def synchronized(func):
 class KalmanFilter():
 
     def __init__(self):
+        self.position = [0, 0, 0]
+        self.map = None # TODO
         self.s_r = None
         self.ds_r = None
         self.s_l = None
         self.ds_l = None
         self.line_segments = None
+
+    def perform(self):
+        self._predict_position()
+        self._observe_measurement()
+        self._match_prediction_and_measurement()
+        self._filter_position()
+
+    @synchronized
+    def _predict_position(self):
+        # TODO
+        x = 0
+
+    @synchronized
+    def _observe_measurement(self):
+        # TODO
+        x = 0
+
+    @synchronized
+    def _match_prediction_and_measurement(self):
+        # TODO
+        x = 0
+
+    @synchronized
+    def _filter_position(self):
+        # TODO
+        x = 0
 
     @synchronized
     def save_joint_states(self, joint_states):
