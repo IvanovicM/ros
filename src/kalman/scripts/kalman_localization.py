@@ -2,18 +2,25 @@
 
 import rospy
 
-from sensor_msgs.msg import LaserScan
-from filter.kfilter import KalmanFilter
+from laser_line_extraction.msg import LineSegmentList
+from kfilter.kfilter import KalmanFilter
+from sensor_msgs.msg import JointState
 
-def filter_with_kalman(laser_scan, kalman_filter):
-    # TODO
-    print('New laser scan')
+def collect_joint_states(joint_states, kalman_filter):
+    kalman_filter.save_joint_states(joint_states)
+
+def collect_line_segments(line_segments, kalman_filter):
+    kalman_filter.save_line_segments(line_segments)
 
 def start_kalman_localization():
     rospy.init_node('kalman_localization', anonymous=False)
     kalman_filter = KalmanFilter()
+
     rospy.Subscriber(
-        'kobuki/laser/scan', LaserScan, filter_with_kalman, kalman_filter
+        'joint_states', JointState, collect_joint_states, kalman_filter
+    )
+    rospy.Subscriber(
+        'line_segments', LineSegmentList, collect_line_segments, kalman_filter
     )
 
     rospy.loginfo('Kalman localization node is available.')
