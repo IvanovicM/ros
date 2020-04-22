@@ -3,6 +3,7 @@ import threading
 
 from gmap import GlobalMap
 from gposition import GlobalPosition
+from math import cos, sin
 
 def synchronized(func):
     func.__lock__ = threading.Lock()
@@ -22,16 +23,54 @@ class KalmanFilter():
         self.ds_l = None
         self.line_segments = None
 
+        self.b = 1
+        self.k_r = 1
+        self.P = np.ones(shape=(3,3))
+
     def perform(self):
-        self._predict_position()
+        pos_pred, P_pred = self._predict_position()
         self._observe_measurement()
         self._match_prediction_and_measurement()
         self._filter_position()
 
     @synchronized
     def _predict_position(self):
-        # TODO
-        x = 0
+        ds = self.ds_r + self.ds_l
+        dtheta = self.ds_r - self.ds_l
+        
+        # Position prediction
+        x_pred = self.pos.x + ds / 2 * cos(self.pos.theta + ds / (2*self.b))
+        y_pred = self.pos.y + ds / 2 * sin(self.pos.theta) + dtheta / (2*self.b)
+        theta_pred = self.pos.theta + dtheta / self.b
+        pos_pred = GlobalPosition(x_pred, y_pred, theta_pred)
+
+        # Prediction and error
+        Q = np.array([
+            [self.k_r * abs(self.ds_r), 0],
+            [0, self.k_r * abs(self.ds_l)]
+        ])
+        F_x = np.array([
+            [1, 0, -ds * sin(self.pos.theta + dtheta/2)],
+            [1, 0, ds * cos(self.pos.theta + dtheta/2)],
+            [0, 0, 1],
+        ])
+        F_u = np.array([
+            [(1/2 * cos(self.pos.theta + dtheta/2) - 
+              ds/(2*self.b) * sin(self.pos.theta + dtheta/2)/2),
+              (1/2 * cos(self.pos.theta + dtheta/2) + 
+              ds/(2*self.b) * sin(self.pos.theta + dtheta/2)/2)],
+            [(1/2 * sin(self.pos.theta + dtheta/2) + 
+              ds/(2*self.b) * cos(self.pos.theta + dtheta/2)/2),
+              (1/2 * sin(self.pos.theta + dtheta/2) - 
+              ds/(2*self.b) * cos(self.pos.theta + dtheta/2)/2)],
+            [1 / self.b, 1 / self.b],
+        ])
+        P_pred = (
+            np.matmul(np.matmul(F_x, self.P), F_x.T) +
+            np.matmul(np.matmul(F_u, Q), F_u.T)
+        )
+        
+        return pos_pred, P_pred
 
     @synchronized
     def _observe_measurement(self):
