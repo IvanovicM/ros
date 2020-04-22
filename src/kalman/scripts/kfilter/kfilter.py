@@ -1,6 +1,9 @@
 import numpy as np
 import threading
 
+from gmap import GlobalMap
+from gposition import GlobalPosition
+
 def synchronized(func):
     func.__lock__ = threading.Lock()
     def synced_func(*args, **kws):
@@ -11,8 +14,8 @@ def synchronized(func):
 class KalmanFilter():
 
     def __init__(self):
-        self.position = [0, 0, 0]
-        self.map = None # TODO
+        self.pos = GlobalPosition()
+        self.map = GlobalMap()
         self.s_r = None
         self.ds_r = None
         self.s_l = None
