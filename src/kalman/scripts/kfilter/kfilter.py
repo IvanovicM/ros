@@ -15,6 +15,9 @@ def synchronized(func):
 class KalmanFilter():
 
     def __init__(self):
+        self.counter = -1
+        self.detection_period = 10
+
         self.pos = GlobalPosition()
         self.map = GlobalMap()
         self.s_r = None
@@ -23,15 +26,22 @@ class KalmanFilter():
         self.ds_l = None
         self.line_segments = None
 
-        self.b = 1
+        self.b = 0.230
         self.k_r = 1
         self.P = np.ones(shape=(3,3))
 
     def perform(self):
+        self.counter = (self.counter + 1) % self.detection_period
+        if self.counter != 0:
+            return None
+
         pos_pred, P_pred = self._predict_position()
         self._observe_measurement()
         self._match_prediction_and_measurement()
         self._filter_position()
+
+        self.pos = pos_pred
+        return pos_pred
 
     @synchronized
     def _predict_position(self):
