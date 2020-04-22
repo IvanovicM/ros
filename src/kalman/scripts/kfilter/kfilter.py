@@ -28,6 +28,7 @@ class KalmanFilter():
 
         self.b = 0.230
         self.k_r = 1
+        self.k_l = 1
         self.P = np.ones(shape=(3,3))
 
     def perform(self):
@@ -45,23 +46,23 @@ class KalmanFilter():
 
     @synchronized
     def _predict_position(self):
-        ds = self.ds_r + self.ds_l
-        dtheta = self.ds_r - self.ds_l
+        ds = (self.ds_r + self.ds_l) / 2
+        dtheta = (self.ds_r - self.ds_l) / self.b
         
         # Position prediction
-        x_pred = self.pos.x + ds / 2 * cos(self.pos.theta + ds / (2*self.b))
-        y_pred = self.pos.y + ds / 2 * sin(self.pos.theta) + dtheta / (2*self.b)
-        theta_pred = self.pos.theta + dtheta / self.b
+        x_pred = self.pos.x + ds / 2 * cos(self.pos.theta + ds / self.b)
+        y_pred = self.pos.y + ds / 2 * sin(self.pos.theta) + dtheta / 2
+        theta_pred = self.pos.theta + dtheta
         pos_pred = GlobalPosition(x_pred, y_pred, theta_pred)
 
         # Prediction and error
         Q = np.array([
             [self.k_r * abs(self.ds_r), 0],
-            [0, self.k_r * abs(self.ds_l)]
+            [0, self.k_l * abs(self.ds_l)]
         ])
         F_x = np.array([
             [1, 0, -ds * sin(self.pos.theta + dtheta/2)],
-            [1, 0, ds * cos(self.pos.theta + dtheta/2)],
+            [0, 1, ds * cos(self.pos.theta + dtheta/2)],
             [0, 0, 1],
         ])
         F_u = np.array([
