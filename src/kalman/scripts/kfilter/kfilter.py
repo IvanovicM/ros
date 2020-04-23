@@ -61,21 +61,20 @@ class KalmanFilter():
         ])
         F_u = np.array([
             [(1/2 * cos(self.pos.theta + dtheta/2) - 
-              ds/(2*self.b) * sin(self.pos.theta + dtheta/2)/2),
+              ds/(2*self.b) * sin(self.pos.theta + dtheta/2)),
               (1/2 * cos(self.pos.theta + dtheta/2) + 
-              ds/(2*self.b) * sin(self.pos.theta + dtheta/2)/2)],
+              ds/(2*self.b) * sin(self.pos.theta + dtheta/2))],
             [(1/2 * sin(self.pos.theta + dtheta/2) + 
-              ds/(2*self.b) * cos(self.pos.theta + dtheta/2)/2),
+              ds/(2*self.b) * cos(self.pos.theta + dtheta/2)),
               (1/2 * sin(self.pos.theta + dtheta/2) - 
-              ds/(2*self.b) * cos(self.pos.theta + dtheta/2)/2)],
-            [1 / self.b, 1 / self.b],
+              ds/(2*self.b) * cos(self.pos.theta + dtheta/2))],
+            [1 / self.b, -1 / self.b],
         ])
         P_pred = (
             np.matmul(np.matmul(F_x, self.P), F_x.T) +
             np.matmul(np.matmul(F_u, Q), F_u.T)
         )
         
-        self.pos = pos_pred
         return pos_pred, P_pred
 
     @synchronized
