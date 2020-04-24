@@ -12,10 +12,22 @@ class RvizMarkerPublisher():
         self.publisher = publisher
         self.next_id = 0
 
-    def publish(self, position):
+    def show_estimated_position(self, position):
         marker = self._get_point_marker(self.next_id, position)
         self.publisher.publish(MarkerArray(markers=[marker]))
         self.next_id += 1
+
+    def show_global_map(self, global_map):
+        markers = []
+        for i in range(len(global_map.walls)):
+            wall = global_map.walls[i]
+            marker = self._get_line_marker(
+                i,
+                [Point(x=wall.start[0], y=wall.start[1], z=0),
+                 Point(x=wall.end[0], y=wall.end[1], z=0)]
+            )
+            markers.append(marker)
+        self.publisher.publish(MarkerArray(markers=markers))
     
     def _get_point_marker(self, id, position, a=1):
         marker = Marker(
@@ -30,5 +42,20 @@ class RvizMarkerPublisher():
         marker.scale.x = 0.08
         marker.scale.y = 0.08
         marker.scale.z = 0.08
+
+        return marker
+
+    def _get_line_marker(self, id, points, a=1):
+        marker = Marker(
+            ns='global_map',
+            pose=Pose(position=Point(x=0, y=0, z=0)),
+            action=0,
+            type=4,
+            id=id,
+            points=points,
+            color=ColorRGBA(b=1, a=a)
+        )
+        marker.header.frame_id = 'base_link'
+        marker.scale.x = 0.03
 
         return marker

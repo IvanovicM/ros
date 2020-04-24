@@ -16,7 +16,7 @@ class KalmanFilter():
 
     def __init__(self):
         self.pos = GlobalPosition()
-        self.map = GlobalMap()
+        self.global_map = GlobalMap()
         self.s_r = None
         self.ds_r = None
         self.s_l = None
@@ -84,7 +84,7 @@ class KalmanFilter():
     def _predict_measurement(self, pos_pred):
         measurement_pred = []
         H = []
-        for wall in self.map.walls:
+        for wall in self.global_map.walls:
             alpha_pred = wall.angle - pos_pred.theta
             rho_pred = wall.radius - (
                 pos_pred.x * cos(wall.angle) + pos_pred.y * sin(wall.angle)

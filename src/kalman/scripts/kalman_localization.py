@@ -22,7 +22,9 @@ def collect_joint_states(joint_states, args):
 
     kalman_filter.save_joint_states(joint_states)
     estimated_position = kalman_filter.filter()
-    marker_publisher.publish(estimated_position)
+
+    marker_publisher.show_estimated_position(estimated_position)
+    marker_publisher.show_global_map(kalman_filter.global_map)
 
 def collect_line_segments(line_segments, kalman_filter):
     kalman_filter.save_line_segments(line_segments)
