@@ -32,9 +32,9 @@ class KalmanFilter():
 
     def perform(self):
         pos_pred, P_pred = self._predict_position()
-        self._observe_measurement()
+        measurement_pred, H = self._predict_measurement(pos_pred)
         self._match_prediction_and_measurement()
-        self._filter_position()
+        self._filter_position(pos_pred)
 
         return pos_pred
 
@@ -78,16 +78,27 @@ class KalmanFilter():
         return pos_pred, P_pred
 
     @synchronized
-    def _observe_measurement(self):
-        pass
+    def _predict_measurement(self, pos_pred):
+        measurement_pred = []
+        H = []
+        for wall in self.map.walls:
+            alpha_pred = wall.angle - pos_pred.theta
+            rho_pred = wall.radius - (
+                pos_pred.x * cos(wall.angle) + pos_pred.y * sin(wall.angle)
+            )
+
+            measurement_pred.append([alpha_pred, rho_pred])
+            H.append([[0, 0, -1], [-cos(wall.angle), -sin(wall.angle), 0]])
+
+        return measurement_pred, H
 
     @synchronized
     def _match_prediction_and_measurement(self):
         pass
 
     @synchronized
-    def _filter_position(self):
-        pass
+    def _filter_position(self, pos_pred):
+        self.pos = pos_pred
 
     @synchronized
     def save_joint_states(self, joint_states):

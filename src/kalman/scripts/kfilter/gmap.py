@@ -3,10 +3,11 @@ from laser_line_extraction.msg import LineSegment
 
 class GlobalMap():
 
-    def __init__(self):
-        self._get_walls_map()
+    def __init__(self, map_type='maze'):
+        if map_type == 'maze':
+            self._init_maze_map()
 
-    def _get_walls_map(self):
+    def _init_maze_map(self):
         self.walls = []
 
         # Wall 1
@@ -75,7 +76,7 @@ class GlobalMap():
         )
         self.walls.append(line_segment)
 
-        # Wall 12 xxx
+        # Wall 12
         line_segment = LineSegment(
             radius=2.6, angle=pi/2, start=[-1.3, 2.6], end=[-0.1, 2.6]
         )
