@@ -29,17 +29,17 @@ class KalmanFilter():
         self.k_r = 1
         self.k_l = 1
         self.P = np.ones(shape=(3,3))
-        self.g = 0.1
+        self.g = 1
 
     def filter(self):
         pos_pred, P_pred = self._predict_position()
         mes_pred, H_pred = self._predict_measurement(pos_pred)
-        v_matched, sigma_matched = (
+        v_matched, sigma_matched, pred_matched = (
             self._match_prediction_and_measurement(mes_pred, H_pred, P_pred)
         )
         self._filter_position(pos_pred)
 
-        return pos_pred
+        return pred_matched
 
     @synchronized
     def _predict_position(self):
@@ -97,18 +97,22 @@ class KalmanFilter():
     @synchronized
     def _match_prediction_and_measurement(self, mes_pred, H_pred, P_pred):
         if self.line_segments is None:
-            return None, None
+            return None, None, None
         v_matched = []
         sigma_matched = []
+        pred_matched = []
 
-        for i in range(mes_pred):
+        for i in range(len(mes_pred)):
             m_pred_i = np.array(mes_pred[i])
             H_i = np.array(H_pred[i])
-            for j in range(self.line_segments):
+            for j in range(len(self.line_segments)):
                 m_real_j = np.array([
                     self.line_segments[j].angle, self.line_segments[j].radius
                 ])
-                R_j = np.array(self.line_segments[j].covariance)
+                R_j = np.array([
+                    self.line_segments[j].covariance[0:2],
+                    self.line_segments[j].covariance[2:4]
+                ])
 
                 v_ij = m_real_j - m_pred_i
                 sigma = np.matmul(np.matmul(H_i, P_pred), H_i.T) + R_j
@@ -117,8 +121,9 @@ class KalmanFilter():
                 if d_ij <= self.g:
                     v_matched.append(v_ij)
                     sigma_matched.append(sigma)
+                    pred_matched.append(m_pred_i)
 
-        return v_matched, sigma_matched
+        return v_matched, sigma_matched, pred_matched
 
     @synchronized
     def _filter_position(self, pos_pred):
@@ -142,4 +147,4 @@ class KalmanFilter():
 
     @synchronized
     def save_line_segments(self, line_segments):
-        self.line_segments = line_segments
+        self.line_segments = line_segments.line_segments

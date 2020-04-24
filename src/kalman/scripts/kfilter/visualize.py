@@ -12,10 +12,21 @@ class RvizMarkerPublisher():
         self.publisher = publisher
         self.next_id = 0
 
-    def show_estimated_position(self, position):
-        marker = self._get_point_marker(self.next_id, position)
-        self.publisher.publish(MarkerArray(markers=[marker]))
-        self.next_id += 1
+    def show_estimated_position(self, pred_matched):
+        if pred_matched is None:
+            print('None')
+            return
+        markers = []
+        for i in range(len(pred_matched)):
+            alpha = pred_matched[i][0]
+            rho = pred_matched[i][1]
+            x = rho * math.cos(alpha)
+            y = rho * math.sin(alpha)
+
+            marker = self._get_point_marker(i, Point(x=x, y=y, z=0))
+            markers.append(marker)
+
+        self.publisher.publish(MarkerArray(markers=markers))
 
     def show_global_map(self, global_map):
         markers = []

@@ -8,25 +8,30 @@ from kfilter.visualize import RvizMarkerPublisher
 from sensor_msgs.msg import JointState
 from visualization_msgs.msg import MarkerArray
 
-counter = -1
+joint_states_counter = -1
+line_segments_counter = -1
 detection_period = 10
 
 def collect_joint_states(joint_states, args):
-    global counter, detection_period
-    counter = (counter + 1) % detection_period
-    if counter != 0:
+    global joint_states_counter, detection_period
+    joint_states_counter = (joint_states_counter + 1) % detection_period
+    if joint_states_counter != 0:
         return
 
     kalman_filter = args[0]
     marker_publisher = args[1]
 
     kalman_filter.save_joint_states(joint_states)
-    estimated_position = kalman_filter.filter()
+    pred_matched = kalman_filter.filter()
 
-    marker_publisher.show_estimated_position(estimated_position)
+    marker_publisher.show_estimated_position(pred_matched)
     marker_publisher.show_global_map(kalman_filter.global_map)
 
 def collect_line_segments(line_segments, kalman_filter):
+    global line_segments_counter, detection_period
+    line_segments_counter = (line_segments_counter + 1) % detection_period
+    if line_segments_counter != 0:
+        return
     kalman_filter.save_line_segments(line_segments)
 
 def start_kalman_localization():
