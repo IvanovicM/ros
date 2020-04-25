@@ -1,9 +1,17 @@
+import math
 import numpy as np
 
 from gmap import GlobalMap
 from gposition import GlobalPosition
 from math import cos, sin
 from threading import Lock
+
+def scale_angle(angle):
+    while angle <= -math.pi:
+        angle = angle + 2*math.pi
+    while angle > math.pi:
+        angle = angle - 2*math.pi
+    return angle
 
 class KalmanFilter():
 
@@ -24,7 +32,7 @@ class KalmanFilter():
         self.k_r = 1
         self.k_l = 1
         self.P = np.ones(shape=(3,3))
-        self.g = 1
+        self.g = 10
 
     def filter(self):
         pos_pred, P_pred = self._predict_position()
@@ -43,7 +51,7 @@ class KalmanFilter():
         # Position prediction
         x_pred = self.pos.x + ds * cos(self.pos.theta + dtheta / 2)
         y_pred = self.pos.y + ds * sin(self.pos.theta + dtheta / 2)
-        theta_pred = self.pos.theta + dtheta
+        theta_pred = scale_angle(self.pos.theta + dtheta)
         pos_pred = GlobalPosition(x_pred, y_pred, theta_pred)
 
         # Prediction and error
@@ -78,7 +86,7 @@ class KalmanFilter():
         measurement_pred = []
         H = []
         for wall in self.global_map.walls:
-            alpha_pred = wall.angle - pos_pred.theta
+            alpha_pred = scale_angle(wall.angle - pos_pred.theta)
             rho_pred = wall.radius - (
                 pos_pred.x * cos(wall.angle) + pos_pred.y * sin(wall.angle)
             )
