@@ -1,27 +1,15 @@
 import numpy as np
-import threading
 
 from gmap import GlobalMap
 from gposition import GlobalPosition
 from math import cos, sin
-
-def synchronized(method):    
-    outer_lock = threading.Lock()
-    lock_name = "__"+method.__name__+"_lock"+"__"
-    
-    def sync_method(self, *args, **kws):
-        with outer_lock:
-            if not hasattr(self, lock_name):
-                setattr(self, lock_name, threading.Lock())
-            lock = getattr(self, lock_name)
-            with lock:
-                return method(self, *args, **kws)  
-
-    return sync_method
+from threading import Lock
 
 class KalmanFilter():
 
     def __init__(self):
+        self.mutex = Lock()
+
         self.pos = GlobalPosition()
         self.global_map = GlobalMap()
         self.s_r = None
@@ -48,7 +36,6 @@ class KalmanFilter():
 
         return pred_matched
 
-    @synchronized
     def _predict_position(self):
         ds = (self.ds_r + self.ds_l) / 2
         dtheta = (self.ds_r - self.ds_l) / self.b
@@ -87,7 +74,6 @@ class KalmanFilter():
         
         return pos_pred, P_pred
 
-    @synchronized
     def _predict_measurement(self, pos_pred):
         measurement_pred = []
         H = []
@@ -101,8 +87,8 @@ class KalmanFilter():
 
         return measurement_pred, H
 
-    @synchronized
     def _match_prediction_and_measurement(self, mes_pred, H_pred, P_pred):
+        self.mutex.acquire()
         if self.line_segments is None:
             return None, None, None
         v_matched = []
@@ -130,13 +116,12 @@ class KalmanFilter():
                     sigma_matched.append(sigma)
                     pred_matched.append(m_pred_i)
 
+        self.mutex.release()
         return v_matched, sigma_matched, pred_matched
 
-    @synchronized
     def _filter_position(self, pos_pred):
         self.pos = pos_pred
 
-    @synchronized
     def save_joint_states(self, joint_states):
         for i in range(len(joint_states.name)):
             if joint_states.name[i] == 'wheel_right_joint':
@@ -152,6 +137,7 @@ class KalmanFilter():
                 )
                 self.s_l = joint_states.position[i] * self.wheel_r
 
-    @synchronized
     def save_line_segments(self, line_segments):
+        self.mutex.acquire()
         self.line_segments = line_segments.line_segments
+        self.mutex.release()
