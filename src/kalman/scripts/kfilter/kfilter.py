@@ -35,14 +35,15 @@ class KalmanFilter():
         self.g = 10
 
     def filter(self):
-        pos_pred, P_pred = self._predict_position()
-        mes_pred, H_pred = self._predict_measurement(pos_pred)
-        v_matched, sigma_matched, pred_matched = (
-            self._match_prediction_and_measurement(mes_pred, H_pred, P_pred)
-        )
-        self._filter_position(pos_pred)
+        self.mutex.acquire()
 
-        return pred_matched
+        pos_pred, P_pred = self._predict_position()
+        mes_pred, H = self._predict_measurement(pos_pred)
+        v, sigma = self._match_prediction_and_measurement(mes_pred, H, P_pred)
+        self._filter_position(pos_pred, P_pred, H, sigma, v)
+
+        self.mutex.release()
+        return self.pos
 
     def _predict_position(self):
         ds = (self.ds_r + self.ds_l) / 2
@@ -96,12 +97,10 @@ class KalmanFilter():
         return measurement_pred, H
 
     def _match_prediction_and_measurement(self, mes_pred, H_pred, P_pred):
-        self.mutex.acquire()
         if self.line_segments is None:
             return None, None, None
         v_matched = []
         sigma_matched = []
-        pred_matched = []
 
         for i in range(len(mes_pred)):
             m_pred_i = np.array(mes_pred[i])
@@ -122,12 +121,10 @@ class KalmanFilter():
                 if d_ij <= self.g:
                     v_matched.append(v_ij)
                     sigma_matched.append(sigma)
-                    pred_matched.append(m_pred_i)
 
-        self.mutex.release()
-        return v_matched, sigma_matched, pred_matched
+        return v_matched, sigma_matched
 
-    def _filter_position(self, pos_pred):
+    def _filter_position(self, pos_pred, P_pred, H, sigma, v):
         self.pos = pos_pred
 
     def save_joint_states(self, joint_states):
