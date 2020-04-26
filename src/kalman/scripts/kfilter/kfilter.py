@@ -47,8 +47,8 @@ class KalmanFilter():
 
         # Fix the prediction, based on measurements
         mes_pred, H = self._predict_measurement(pos_pred)
-        v, sigma = self._match_prediction_and_measurement(mes_pred, H, P_pred)
-        self._filter_position(pos_pred, P_pred, H, sigma, v)
+        v, R = self._match_prediction_and_measurement(mes_pred, H, P_pred)
+        self._filter_position(pos_pred, P_pred, H, R, v)
         self.mutex.release()
         return self.pos
 
@@ -107,7 +107,7 @@ class KalmanFilter():
         if self.line_segments is None:
             return None, None, None
         v_matched = []
-        sigma_matched = []
+        R_matched = []
 
         for i in range(len(mes_pred)):
             m_pred_i = np.array(mes_pred[i])
@@ -127,11 +127,11 @@ class KalmanFilter():
 
                 if d_ij <= self.g:
                     v_matched.append(v_ij)
-                    sigma_matched.append(sigma)
+                    R_matched.append(R_j)
 
-        return v_matched, sigma_matched
+        return v_matched, R_matched
 
-    def _filter_position(self, pos_pred, P_pred, H, sigma, v):
+    def _filter_position(self, pos_pred, P_pred, H, R, v):
         self.pos = pos_pred
 
     def save_joint_states(self, joint_states):
