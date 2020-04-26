@@ -36,12 +36,19 @@ class KalmanFilter():
 
     def filter(self):
         self.mutex.acquire()
-
         pos_pred, P_pred = self._predict_position()
+
+        # Any measurement?
+        if self.line_segments is None or len(self.line_segments) == 0:
+            self.pos = pos_pred
+            self.P = P_pred
+            self.mutex.release()
+            return self.pos
+
+        # Fix the prediction, based on measurements
         mes_pred, H = self._predict_measurement(pos_pred)
         v, sigma = self._match_prediction_and_measurement(mes_pred, H, P_pred)
         self._filter_position(pos_pred, P_pred, H, sigma, v)
-
         self.mutex.release()
         return self.pos
 
