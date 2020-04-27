@@ -4,6 +4,7 @@ import numpy as np
 from gmap import GlobalMap
 from gposition import GlobalPosition
 from math import cos, sin
+from scipy.linalg import block_diag
 from threading import Lock
 
 def scale_angle(angle):
@@ -29,8 +30,8 @@ class KalmanFilter():
         self.b = 0.230 # 230 mm
         self.wheel_r = 0.035 # 35 mm
 
-        self.k_r = 1
-        self.k_l = 1
+        self.k_r = 0.1
+        self.k_l = 0.1
         self.P = np.ones(shape=(3,3))
         self.g = 10
 
@@ -47,7 +48,7 @@ class KalmanFilter():
 
         # Fix the prediction, based on measurements
         mes_pred, H = self._predict_measurement(pos_pred)
-        v, R = self._match_prediction_and_measurement(mes_pred, H, P_pred)
+        v, R, H = self._match_prediction_and_measurement(mes_pred, H, P_pred)
         self._filter_position(pos_pred, P_pred, H, R, v)
         self.mutex.release()
         return self.pos
@@ -108,6 +109,7 @@ class KalmanFilter():
             return None, None, None
         v_matched = []
         R_matched = []
+        H_matched = []
 
         for i in range(len(mes_pred)):
             m_pred_i = np.array(mes_pred[i])
@@ -128,11 +130,40 @@ class KalmanFilter():
                 if d_ij <= self.g:
                     v_matched.append(v_ij)
                     R_matched.append(R_j)
+                    H_matched.append(H_i)
 
-        return v_matched, R_matched
+        return v_matched, R_matched, H_matched
 
     def _filter_position(self, pos_pred, P_pred, H, R, v):
-        self.pos = pos_pred
+        if R is None or len(R) == 0 or len(R) != len(H) or len(R) != len(v):
+            self.P = P_pred
+            self.pos = pos_pred
+            return
+
+        # Block diagonal R
+        R_r = np.array(R[0])
+        for i in range(1, len(R)):
+            R_r = block_diag(R_r, R[i])
+        R = R_r
+        
+        # Reshape H and v
+        v = np.reshape(v, (-1, 1))
+        H_r = []
+        for i in range(len(H)):
+            H_r.append(np.transpose(H[i]))
+        H = np.reshape(H_r, (-1, 3))
+
+        # Calculate Kalman gain and fitler position
+        sigma = np.matmul(np.matmul(H, P_pred), H.T) + R
+        self.K = np.matmul(np.matmul(P_pred, H.T), np.linalg.inv(sigma))
+        self.P = np.matmul((np.eye(3) - np.matmul(self.K, H)), P_pred)
+        pos_inovation = np.matmul(self.K, v)
+
+        self.pos.set_position(
+            x=self.pos.x + pos_inovation.T[0][0],
+            y=self.pos.y + pos_inovation.T[0][1],
+            theta=self.pos.theta + pos_inovation.T[0][2]
+        )
 
     def save_joint_states(self, joint_states):
         for i in range(len(joint_states.name)):
