@@ -2,9 +2,11 @@
 
 import rospy
 
+from geometry_msgs.msg import Point
 from laser_line_extraction.msg import LineSegmentList
 from kfilter.kfilter import KalmanFilter
 from kfilter.visualize import RvizMarkerPublisher
+from nav_msgs.msg import Odometry
 from sensor_msgs.msg import JointState
 from visualization_msgs.msg import MarkerArray
 
@@ -13,6 +15,10 @@ def collect_joint_states(joint_states, kalman_filter):
 
 def collect_line_segments(line_segments, kalman_filter):
     kalman_filter.save_line_segments(line_segments)
+
+def collect_odometry(od, marker_publisher):
+    od_pos = Point(x=od.pose.pose.position.x, y=od.pose.pose.position.y)
+    marker_publisher.show_odometry_position(od_pos)
 
 def filter_with_kalman(kalman_filter, marker_publisher):
     while True:
@@ -36,6 +42,7 @@ def start_kalman_localization():
     rospy.Subscriber(
         'line_segments', LineSegmentList, collect_line_segments, kalman_filter
     )
+    rospy.Subscriber('odom', Odometry, collect_odometry, marker_publisher)
 
     rospy.loginfo('Kalman localization node is available.')
     filter_with_kalman(kalman_filter, marker_publisher)

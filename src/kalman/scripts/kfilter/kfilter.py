@@ -163,6 +163,9 @@ class KalmanFilter():
         self.P = np.matmul((np.eye(3) - np.matmul(self.K, H)), P_pred)
         pos_inovation = np.matmul(self.K, v)
 
+        print('------------------')
+        print(pos_inovation)
+
         self.pos.set_position(
             x=pos_pred.x + pos_inovation.T[0][0],
             y=pos_pred.y + pos_inovation.T[0][1],

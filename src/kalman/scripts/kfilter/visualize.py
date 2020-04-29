@@ -10,12 +10,23 @@ class RvizMarkerPublisher():
 
     def __init__(self, publisher):
         self.publisher = publisher
-        self.next_id = 0
+        self.kalman_idx = 0
+        self.odom_idx = 0
+        self.point_idx_period = 1000
 
     def show_estimated_position(self, position):
-        marker = self._get_point_marker(self.next_id, position)
+        marker = self._get_point_marker(
+            self.kalman_idx, position, 'kalman_estimation', ColorRGBA(g=1, a=1)
+        )
         self.publisher.publish(MarkerArray(markers=[marker]))
-        #self.next_id += 1
+        self.kalman_idx = (self.kalman_idx + 1) % self.point_idx_period
+
+    def show_odometry_position(self, position):
+        marker = self._get_point_marker(
+            self.odom_idx, position, 'odometry_estimation', ColorRGBA(r=1, a=1)
+        )
+        self.publisher.publish(MarkerArray(markers=[marker]))
+        self.odom_idx = (self.odom_idx + 1) % self.point_idx_period
 
     def show_global_map(self, global_map):
         markers = []
@@ -29,14 +40,14 @@ class RvizMarkerPublisher():
             markers.append(marker)
         self.publisher.publish(MarkerArray(markers=markers))
     
-    def _get_point_marker(self, id, position, a=1):
+    def _get_point_marker(self, id, position, namespace, color):
         marker = Marker(
-            ns='kalman_prediciton',
+            ns=namespace,
             pose=Pose(position=Point(position.x, position.y, 0)),
             action=0,
             type=2,
             id=id,
-            color=ColorRGBA(g=1, a=a)
+            color=color
         )
         marker.header.frame_id = 'base_link'
         marker.scale.x = 0.08
