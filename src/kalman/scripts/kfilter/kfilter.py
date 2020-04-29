@@ -32,10 +32,10 @@ class KalmanFilter():
         self.b = 0.230 # 230 mm
         self.wheel_r = 0.035 # 35 mm
 
-        self.k_r = 0.001
-        self.k_l = 0.001
-        self.P = 0.01 * np.ones(shape=(3,3))
-        self.g = 100
+        self.k_r = 1e-10
+        self.k_l = 1e-10
+        self.P = 1e-10 * np.ones(shape=(3,3))
+        self.g = 10
 
     def filter(self):
         self.mutex.acquire()
@@ -131,7 +131,7 @@ class KalmanFilter():
                 sigma = np.matmul(np.matmul(H_i, P_pred), H_i.T) + R_j
                 d_ij = np.matmul(np.matmul(v_ij.T, np.linalg.inv(sigma)), v_ij)
 
-                if d_ij <= self.g:
+                if d_ij <= self.g**2:
                     v_matched.append(v_ij)
                     R_matched.append(R_j)
                     H_matched.append(H_i)
@@ -163,13 +163,10 @@ class KalmanFilter():
         self.P = np.matmul((np.eye(3) - np.matmul(self.K, H)), P_pred)
         pos_inovation = np.matmul(self.K, v)
 
-        print('------------------')
-        print(pos_inovation)
-
         self.pos.set_position(
             x=pos_pred.x + pos_inovation.T[0][0],
             y=pos_pred.y + pos_inovation.T[0][1],
-            theta=scale_angle(pos_pred.theta)
+            theta=scale_angle(pos_pred.theta + pos_inovation.T[0][2])
         )
 
     def _set_ds(self):
